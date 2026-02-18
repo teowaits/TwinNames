@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Twin & Triplet Names</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(160deg, #f5efe6 0%, #ede3d2 45%, #e6d9c4 100%);
+      font-family: 'Cormorant Garamond', serif;
+    }
+    button { font-family: inherit; cursor: pointer; }
+    /* Orbs */
+    .orb1 {
+      position: fixed; top: -80px; right: -80px; width: 380px; height: 380px;
+      border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle, rgba(180,150,100,0.09) 0%, transparent 70%);
+    }
+    .orb2 {
+      position: fixed; bottom: -60px; left: -60px; width: 300px; height: 300px;
+      border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle, rgba(180,150,100,0.09) 0%, transparent 70%);
+    }
+    /* Layout */
+    #root { padding: 40px 20px; position: relative; }
+    .container { max-width: 800px; margin: 0 auto; }
+    /* Header */
+    .header { text-align: center; margin-bottom: 48px; }
+    .header-eyebrow {
+      font-family: 'DM Mono', monospace; font-size: 0.58rem;
+      letter-spacing: 0.28em; color: #8b7355; text-transform: uppercase; margin-bottom: 14px;
+    }
+    .header-title {
+      font-family: 'Cormorant Garamond', serif; font-size: clamp(2.4rem, 5.5vw, 3.8rem);
+      font-weight: 300; color: #2d1f0e; letter-spacing: 0.05em; line-height: 1.1; margin-bottom: 10px;
+    }
+    .header-sources {
+      font-family: 'DM Mono', monospace; font-size: 0.58rem;
+      color: #8b7355; letter-spacing: 0.1em; line-height: 2;
+    }
+    /* Sections */
+    .section {
+      background: rgba(255,255,255,0.52); border-radius: 10px;
+      padding: 26px; border: 1px solid rgba(212,196,160,0.55); margin-bottom: 24px;
+    }
+    .section-label {
+      font-family: 'DM Mono', monospace; font-size: 0.58rem;
+      letter-spacing: 0.2em; color: #8b7355; text-transform: uppercase;
+      text-align: center; margin-bottom: 16px;
+    }
+    /* Toggle row */
+    .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    /* Choice buttons */
+    .choice-btn {
+      padding: 13px 32px; border: 1.5px solid; border-radius: 6px;
+      font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;
+      letter-spacing: 0.04em; transition: all 0.2s;
+    }
+    .choice-btn.active  { background: #5c4a2a; border-color: #5c4a2a; color: #f5efe6; }
+    .choice-btn.inactive{ background: transparent; border-color: #d4c4a0; color: #5c4a2a; }
+    /* Gender grid */
+    .gender-grid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-bottom: 0; }
+    .gender-block { text-align: center; }
+    .gender-block-label {
+      font-family: 'DM Mono', monospace; font-size: 0.65rem;
+      letter-spacing: 0.15em; color: #8b7355; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .gender-opts { display: flex; gap: 8px; justify-content: center; }
+    .gender-opt {
+      padding: 10px 14px; border: 1.5px solid; border-radius: 4px;
+      font-family: 'DM Mono', monospace; font-size: 0.68rem;
+      letter-spacing: 0.06em; transition: all 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+    }
+    .gender-opt .icon { font-size: 1rem; line-height: 1; }
+    .gender-opt.active  { background: #5c4a2a; border-color: #5c4a2a; color: #f5efe6; }
+    .gender-opt.inactive{ background: transparent; border-color: #d4c4a0; color: #5c4a2a; }
+    /* Length buttons */
+    .length-btn {
+      width: 44px; height: 44px; border: 1.5px solid; border-radius: 4px;
+      font-family: 'DM Mono', monospace; font-size: 0.8rem; transition: all 0.2s;
+    }
+    .length-btn.active  { background: #5c4a2a; border-color: #5c4a2a; color: #f5efe6; }
+    .length-btn.inactive{ background: transparent; border-color: #d4c4a0; color: #5c4a2a; }
+    /* Country buttons */
+    .country-btn {
+      padding: 8px 13px; border: 1.5px solid; border-radius: 6px;
+      font-family: 'DM Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.04em; transition: all 0.2s; line-height: 1.5;
+    }
+    .country-btn.active  { background: #5c4a2a; border-color: #5c4a2a; color: #f5efe6; }
+    .country-btn.inactive{ background: transparent; border-color: #d4c4a0; color: #5c4a2a; }
+    /* Divider */
+    .divider { border-top: 1px solid rgba(212,196,160,0.5); padding-top: 20px; margin-top: 6px; }
+    /* Toggle switch */
+    .toggle-row { display: flex; align-items: center; gap: 14px; justify-content: center; flex-wrap: wrap; transition: opacity 0.2s; }
+    .toggle-row.disabled { opacity: 0.45; }
+    .toggle-text { flex: 1; min-width: 180px; }
+    .toggle-title { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: #2d1f0e; }
+    .toggle-sub { font-family: 'DM Mono', monospace; font-size: 0.56rem; color: #8b7355; letter-spacing: 0.06em; margin-top: 3px; line-height: 1.5; }
+    .toggle-track {
+      width: 50px; height: 28px; border-radius: 14px; border: none;
+      position: relative; flex-shrink: 0; transition: background 0.25s;
+    }
+    .toggle-thumb {
+      position: absolute; top: 4px; width: 20px; height: 20px; border-radius: 50%;
+      background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); transition: left 0.25s;
+    }
+    .toggle-label { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; min-width: 22px; }
+    /* Discover button */
+    .discover-btn {
+      display: block; margin: 0 auto; padding: 18px 44px;
+      background: #2d1f0e; color: #f5efe6; border: none; border-radius: 8px;
+      font-family: 'Cormorant Garamond', serif; font-size: 1.3rem;
+      font-weight: 400; letter-spacing: 0.08em;
+      box-shadow: 0 4px 22px rgba(45,31,14,0.22); transition: all 0.2s;
+    }
+    .discover-btn:hover { background: #3d2a14; transform: translateY(-1px); box-shadow: 0 6px 28px rgba(45,31,14,0.28); }
+    /* ── Results ── */
+    .cards-row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; }
+    .name-card {
+      background: #faf6ef; border: 1.5px solid #d4c4a0; border-radius: 10px;
+      padding: 28px 22px 46px; text-align: center; position: relative;
+      flex: 1; min-width: 170px; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s;
+    }
+    .name-card.pop { transform: scale(1.04); box-shadow: 0 10px 36px rgba(92,74,42,0.16); }
+    .name-card:not(.pop) { transform: scale(1); box-shadow: 0 2px 10px rgba(92,74,42,0.07); }
+    .card-child-label {
+      font-family: 'DM Mono', monospace; font-size: 0.58rem;
+      letter-spacing: 0.2em; color: #8b7355; text-transform: uppercase; margin-bottom: 14px;
+    }
+    .card-name {
+      font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 4vw, 2.6rem);
+      font-weight: 300; color: #2d1f0e; letter-spacing: 0.04em; line-height: 1.1; margin-bottom: 5px;
+    }
+    .card-letters { font-family: 'DM Mono', monospace; font-size: 0.56rem; color: #b09070; letter-spacing: 0.1em; }
+    .card-skip {
+      position: absolute; top: 10px; right: 10px;
+      background: none; border: 1px solid #d4c4a0; border-radius: 50%;
+      width: 26px; height: 26px; color: #8b7355; font-size: 0.85rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; line-height: 1; padding: 0;
+    }
+    .card-skip:hover { background: #f0e8d8; border-color: #b09070; }
+    .card-footer {
+      position: absolute; bottom: 11px; left: 13px; right: 13px;
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+    }
+    .card-flags { display: flex; gap: 2px; flex-wrap: wrap; align-items: center; }
+    .card-flag { font-size: 0.95rem; line-height: 1; cursor: default; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1)); }
+    .universal-badge {
+      font-family: 'DM Mono', monospace; font-size: 0.48rem;
+      letter-spacing: 0.06em; color: #7a5c20;
+      background: linear-gradient(135deg,#f8efcc,#f0e0a8);
+      border: 1px solid #d4b060; border-radius: 20px;
+      padding: 2px 7px; white-space: nowrap; flex-shrink: 0;
+    }
+    /* Banners */
+    .banner-universal {
+      background: linear-gradient(135deg,#f8efcc,#f2e4b0); border: 1px solid #d4b060;
+      border-radius: 8px; padding: 11px 20px; text-align: center; margin-bottom: 24px;
+      font-family: 'DM Mono', monospace; font-size: 0.6rem; color: #7a5c20; letter-spacing: 0.1em;
+    }
+    .banner-noresult {
+      background: rgba(255,240,215,0.8); border: 1px solid #e8c07a;
+      border-radius: 8px; padding: 14px 20px; text-align: center; margin-bottom: 24px;
+      font-family: 'DM Mono', monospace; font-size: 0.6rem; color: #8b5e20; letter-spacing: 0.08em;
+    }
+    /* Skipped */
+    .skipped-box {
+      background: rgba(255,255,255,0.4); border-radius: 8px; padding: 14px 18px;
+      border: 1px solid rgba(212,196,160,0.4); margin-bottom: 24px;
+    }
+    .skipped-title { font-family: 'DM Mono', monospace; font-size: 0.52rem; letter-spacing: 0.15em; color: #8b7355; text-transform: uppercase; margin-bottom: 8px; }
+    .skipped-name { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: #a08060; text-decoration: line-through; opacity: 0.7; }
+    /* Controls */
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; }
+    .btn-primary {
+      padding: 14px 30px; background: #5c4a2a; color: #f5efe6;
+      border: none; border-radius: 6px;
+      font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;
+      letter-spacing: 0.05em; transition: all 0.2s;
+    }
+    .btn-primary:hover { background: #4a3a20; }
+    .btn-secondary {
+      padding: 14px 30px; background: transparent; color: #5c4a2a;
+      border: 1.5px solid #d4c4a0; border-radius: 6px;
+      font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;
+      letter-spacing: 0.05em; transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: #5c4a2a; }
+    /* Legend */
+    .legend { text-align: center; font-family: 'DM Mono', monospace; font-size: 0.52rem; color: #a08060; letter-spacing: 0.09em; line-height: 2.2; }
+    @media (max-width: 480px) {
+      .name-card { min-width: 140px; }
+      .section { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb1"></div>
+  <div class="orb2"></div>
+  <div id="root"></div>
+
+  <script>
+  // ─── NAME DATABASE ───────────────────────────────────────────────────────────
+  const NAME_DB = {
+    italy:   { label: "🇮🇹 Italy (ISTAT 2023)",    flag: "🇮🇹",
+      male:    ["Leonardo","Edoardo","Tommaso","Francesco","Alessandro","Mattia","Lorenzo","Gabriele","Riccardo","Andrea","Matteo","Luca","Marco","Davide","Filippo","Pietro","Giovanni","Giacomo","Nicolo","Stefano","Federico","Antonio","Emanuele","Simone","Roberto","Alberto","Raffaele","Diego","Samuele","Daniele","Cristian","Elia","Gioele","Ludovico","Damiano","Martino","Tobia","Agostino","Guglielmo","Carlo","Ciro","Brando","Flavio","Aldo","Enrico","Giulio","Ivan","Giorgio","Claudio","Massimo","Vincenzo","Salvatore","Bruno","Sergio","Angelo","Dario","Fabrizio","Gianluca","Mauro","Paolo","Piero","Renato","Romeo","Ruggero","Sandro","Silvio","Ugo","Valerio"],
+      female:  ["Sofia","Aurora","Ginevra","Vittoria","Giulia","Beatrice","Ludovica","Alice","Emma","Matilde","Anna","Chiara","Martina","Sara","Elisa","Elena","Francesca","Laura","Valentina","Alessia","Federica","Silvia","Camilla","Eleonora","Giorgia","Serena","Viola","Noemi","Mia","Gaia","Chloe","Arianna","Margherita","Azzurra","Rachele","Rebecca","Irene","Letizia","Nina","Zoe","Flavia","Cristina","Rossella","Alessandra","Angela","Barbara","Cecilia","Daniela","Eva","Gemma","Ilaria","Jessica","Katia","Lisa","Monica","Nadia","Ornella","Patrizia","Roberta","Sabrina","Tiziana","Ursula","Valeria","Viviana","Wanda","Lucia"],
+      neutral: ["Andrea","Luca","Alex","Nico","Remy","Robin","Sam","Sasha","Morgan","Ariel","Noel","Jean","Rene"] },
+
+    spain:   { label: "🇪🇸 Spain (INE 2023)",      flag: "🇪🇸",
+      male:    ["Lucas","Mateo","Hugo","Martin","Daniel","Pablo","Alejandro","Adrian","David","Marcos","Miguel","Alvaro","Diego","Carlos","Sergio","Javier","Antonio","Manuel","Jesus","Francisco","Jose","Pedro","Juan","Oscar","Ruben","Raul","Hector","Ivan","Roberto","Rodrigo","Gonzalo","Alberto","Rafael","Agustin","Andres","Borja","Cristobal","Eduardo","Fernando","Guillermo","Jaime","Joaquin","Leonardo","Luis","Nacho","Nicolas","Oliver","Salvador","Teodoro","Valentin","Victor","Xavier","Yago","Ignacio","Lorenzo","Mario","Tomas","Ramon","Simon","Emilio","Felipe","German","Isidro"],
+      female:  ["Lucia","Sofia","Maria","Martina","Paula","Valentina","Julia","Emma","Daniela","Sara","Carla","Alba","Noa","Claudia","Andrea","Elena","Isabel","Laura","Ana","Carmen","Cristina","Marta","Beatriz","Rocio","Lola","Teresa","Pilar","Rosa","Natalia","Patricia","Silvia","Alicia","Raquel","Miriam","Irene","Clara","Lidia","Nuria","Alejandra","Ainhoa","Esther","Lorena","Yolanda","Veronica","Aitana","Celia","Ines","Laia","Amelia","Blanca","Constanza","Diana","Florencia","Gloria","Helena","Jimena","Katia","Leonor","Marisol","Nadia","Olga","Penelope"],
+      neutral: ["Alex","Nico","Andrea","Remi","Sasha","Morgan","Robin","Noel","Rene","Ariel","Sam","Jordan","Cam"] },
+
+    usa:     { label: "🇺🇸 USA (SSA 2023)",         flag: "🇺🇸",
+      male:    ["Liam","Noah","Oliver","James","Elijah","Mateo","Theodore","Henry","Lucas","William","Benjamin","Aiden","Sebastian","Jack","Ezra","Owen","Leo","Mason","Ethan","Logan","Carter","Levi","Jackson","Julian","Hudson","Grayson","Wyatt","Gabriel","Lincoln","Josiah","Eli","Jaxon","Xavier","Caleb","Asher","Ryan","Nathan","Adrian","Miles","Easton","Jace","Evan","Cole","Cooper","Nolan","Landon","Jeremiah","Axel","Aaron","Austin","Charles","Dominic","Dylan","Emmett","Felix","Gavin","Grant","Greyson","Harrison","Hunter","Ian","Isaiah","Jasper","Jordan","Kyle","Luke","Max","Nicholas","Oscar","Parker","Quinn","Reid","Sawyer","Silas","Tyler","Victor","Zane"],
+      female:  ["Olivia","Emma","Charlotte","Amelia","Sophia","Mia","Isabella","Ava","Evelyn","Luna","Harper","Camila","Sofia","Eleanor","Elizabeth","Violet","Scarlett","Emily","Hazel","Lily","Gianna","Aurora","Penelope","Riley","Zoey","Nora","Hannah","Layla","Brooklyn","Natalie","Zoe","Leah","Savannah","Audrey","Bella","Maya","Valentina","Claire","Stella","Ellie","Samantha","Maria","Victoria","Willow","Kinsley","Naomi","Paisley","Nyla","Caroline","Genesis","Aaliyah","Kennedy","Sadie","Autumn","Hailey","Eliana","Ivy","Ariana","Arianna","Delilah","Jade","Kylie","Leilani","Lillian","Lucy","Mackenzie","Madelyn","Natalia","Peyton","Serenity","Skylar","Vivienne"],
+      neutral: ["Jordan","Riley","Quinn","Morgan","Avery","Peyton","Reese","Finley","Rowan","Sage","River","Skyler","Emerson","Phoenix","Hayden","Jessie","Casey","Jamie","Taylor","Cameron","Bailey","Drew","Blake","Charlie","Dakota","Ellis","Frankie","Harley","Jesse","Kendall","Lee","Lynn","Micah","Parker","Reagan","Remy","Robin","Ryan","Sam","Shannon","Shawn","Sidney","Spencer","Tatum","Terry","Tracy","Tyler","Whitney","Alex","Alexis"] },
+
+    uk:      { label: "🇬🇧 UK (ONS 2023)",          flag: "🇬🇧",
+      male:    ["Noah","Oliver","George","Arthur","Muhammad","Leo","Harry","Oscar","Archie","Henry","Theodore","Freddie","Alfie","Charlie","Theo","Finley","Reuben","Ezra","Tommy","Elijah","Jack","Luca","Ethan","William","Hugo","Jude","Thomas","Arlo","Liam","Mason","Adam","Alexander","Dylan","Felix","Finn","Frankie","Hamza","Harrison","Hudson","Ibrahim","Isaac","Jacob","Jamie","Jasper","Jensen","Joshua","Kai","Louie","Luke","Marcus","Max","Monty","Remy","Rory","Rupert","Ryan","Samuel","Sebastian","Seth","Stanley","Tobias","Victor","Xavier","Zach","Caleb","Cole","Daniel","Elliot","Evan","Gabriel","Grayson"],
+      female:  ["Olivia","Amelia","Isla","Ava","Ivy","Freya","Lily","Florence","Mia","Willow","Isabella","Sophia","Poppy","Daisy","Aurora","Grace","Sienna","Elsie","Violet","Rosie","Ella","Alice","Arabella","Aria","Bonnie","Chloe","Darcy","Eliza","Ellie","Eva","Evelyn","Evie","Felicity","Georgia","Gracie","Hannah","Harriet","Imogen","Iris","Jasmine","Jessica","Layla","Lola","Lucy","Luna","Maisie","Maya","Megan","Millie","Molly","Niamh","Nora","Phoebe","Remi","Rose","Ruby","Scarlett","Sophie","Stella","Summer","Thea","Zara","Zoe","Abigail","Amber","Beatrice","Clara","Claudia","Eleanor","Elizabeth","Emma","Faith","Holly"],
+      neutral: ["Remi","Rowan","Kai","Finley","Morgan","Robin","River","Sage","Ash","Blair","Brett","Cameron","Casey","Chris","Drew","Ellis","Emery","Frankie","Hayden","Indigo","Jax","Jesse","Jude","Kit","Lake","Lark","Lee","Logan","Luca","Marlow","Max","Milan","Nico","Ocean","Parker","Quinn","Reed","Ren","Riley","Robin","Ryan","Sam","Scout","Sky","Sloane","Sol","Stone","Storm","Sully","Sunny","Tate","Waverly","Winter","Wren","Zephyr"] },
+
+    france:  { label: "🇫🇷 France (INSEE 2023)",    flag: "🇫🇷",
+      male:    ["Gabriel","Leo","Raphael","Louis","Arthur","Lucas","Adam","Hugo","Nathan","Theo","Mathis","Enzo","Tom","Alexis","Clement","Baptiste","Maxime","Nicolas","Pierre","Thomas","Antoine","Julien","Victor","Noe","Mathieu","Romain","Tristan","Valentin","Simon","Benoit","Charles","Cyril","Damien","Edouard","Florian","Guillaume","Kevin","Laurent","Loic","Luc","Mael","Mehdi","Mickael","Quentin","Remi","Samuel","Sebastien","Stephane","Thibault","Yann","Zacharie","Alexandre","Antonin","Arnaud","Axel","Benjamin","Cedric","Corentin"],
+      female:  ["Emma","Jade","Louise","Alice","Chloe","Ines","Lea","Manon","Lucie","Camille","Sarah","Lola","Zoe","Lena","Pauline","Clara","Juliette","Margot","Laura","Marie","Ambre","Amelia","Anais","Charlotte","Elisa","Elise","Eloise","Eva","Gaelle","Heloise","Jeanne","Josephine","Justine","Laurie","Laure","Lisa","Maeva","Maelys","Margaux","Marion","Mathilde","Maud","Melanie","Morgane","Nadia","Nathalie","Noemie","Oceane","Olivia","Ophelie","Romane","Rose","Roxane","Sabrina","Salome","Sandy","Soline","Stephanie","Tina","Yasmine","Lucia"],
+      neutral: ["Camille","Claude","Dominique","Maxime","Morgan","Noel","Rene","Robin","Sam","Sacha","Alex","Alexis","Charlie","Dany","Jules","Kim","Luc","Nico","Pat","Remy","Sandy","Sasha","Val","Yann"] },
+
+    germany: { label: "🇩🇪 Germany (Destatis 2023)", flag: "🇩🇪",
+      male:    ["Noah","Matteo","Leon","Elias","Paul","Ben","Jonas","Finn","Felix","Luca","Luis","Julian","Maximilian","Lukas","Johannes","Alexander","Niklas","Jan","David","Tobias","Sebastian","Tim","Dominic","Moritz","Fabian","Simon","Stefan","Christian","Marcel","Daniel","Patrick","Michael","Philipp","Andreas","Klaus","Thomas","Wolfgang","Gunter","Heinz","Werner","Rudolf","Horst","Frank","Bernd","Herbert","Dieter","Karl","Hans","Fritz","Otto","Ernst","Wilhelm","Friedrich","Heinrich","Bernhard","Leopold","Konrad","Gottfried","Alfred","Egon","Erwin","Gerhard","Harald","Hartmut","Helmut","Hermann","Hugo"],
+      female:  ["Emilia","Mia","Sophia","Emma","Hannah","Mila","Lina","Lena","Leonie","Anna","Maria","Laura","Lea","Julia","Nina","Jana","Nele","Lisa","Marie","Sarah","Sophie","Stefanie","Sabine","Claudia","Sandra","Andrea","Petra","Monika","Martina","Christina","Katrin","Karin","Brigitte","Renate","Ursula","Ingrid","Christa","Gisela","Gerda","Hildegard","Helga","Ilse","Lieselotte","Liesel","Luise","Margarete","Mathilde","Rosemarie","Waltraud","Elfriede","Frieda","Hedwig","Klara","Lotte","Lucie","Magdalena","Marlene","Marta","Ruth","Thea"],
+      neutral: ["Alex","Kim","Nico","Robin","Sasha","Sam","Chris","Kai","Jean","Morgan","Quinn","Riley","Taylor","Jordan","Casey","Charlie","Dana","Drew","Emery","Frankie","Hayden","Jesse","Lee","Leslie","Lynn","Parker","Pat","Remy","Rene","Sandy","Skylar","Sky","Sol","Sunny","Toni","Val","Wren","Yuki"] },
+
+    sweden:  { label: "🇸🇪 Sweden (SCB 2023)",       flag: "🇸🇪",
+      male:    ["William","Lucas","Liam","Noah","Oliver","Elias","Oscar","Hugo","Axel","Elliot","Alexander","Erik","Emil","Adam","Isak","Filip","Noel","Viktor","Edvin","Albin","Felix","Anton","Gustav","Arvid","Pontus","Rasmus","Simon","Marcus","Mattias","Johan","Anders","Bjorn","Carl","Claes","David","Fredrik","Goran","Gunnar","Hans","Henrik","Joakim","Jonas","Karl","Lars","Lennart","Magnus","Martin","Michael","Mikael","Nils","Patrik","Per","Peter","Robert","Rolf","Sven","Thomas","Tobias","Tommy","Ulf","Urban","Walter","Waldemar"],
+      female:  ["Alice","Maja","Ella","Elsa","Astrid","Wilma","Julia","Alma","Stella","Linnea","Klara","Ebba","Freja","Ida","Elin","Sofia","Emma","Sara","Agnes","Nora","Hanna","Emilia","Saga","Lina","Olivia","Vera","Signe","Ines","Sigrid","Tuva","Solveig","Matilda","Frida","Karin","Malin","Anna","Annika","Birgitta","Christina","Eva","Gunilla","Inga","Ingrid","Kristina","Lena","Lotta","Margareta","Maria","Marie","Monika","Petra","Pia","Ulrika","Susanna","Therese","Tina","Ulla","Yvonne","Lucia"],
+      neutral: ["Elliot","Kim","Robin","Sasha","Saga","Alex","Nico","Morgan","Sam","Charlie","Emre","Erin","Frankie","Hayden","Jesse","Jordan","Kai","Lee","Logan","Milan","Noel","Parker","Quinn","Reed","Remy","Riley","River","Ryan","Sandy","Scout","Skye","Sol","Sonny","Storm","Sunny","Tate","Val","Wren","Yuki","Zephyr"] },
+
+    canada:  { label: "🇨🇦 Canada (StatCan 2023)",   flag: "🇨🇦",
+      male:    ["Liam","Noah","Oliver","Benjamin","Elijah","Lucas","William","Henry","Jack","James","Theodore","Leo","Owen","Ethan","Logan","Sebastian","Aiden","Jayden","Carter","Mason","Hudson","Ezra","Wyatt","Grayson","Gabriel","Asher","Julian","Luca","Mateo","Maverick","Finn","Zach","Nolan","Declan","Emmett","Gavin","Beau","Chase","Dallas","Dax","Dillon","Easton","Eli","Elliot","Evan","Flynn","Grant","Greyson","Harley","Heath","Hunter","Jackson","Jake","Jasper","Jaxon","Jensen","Jude","Justin","Kai","Kieran","Lane","Lennon","Lincoln","Luke","Marshall","Max","Miles","Milo","Nate","Nico","Orion"],
+      female:  ["Olivia","Emma","Charlotte","Amelia","Sophia","Mia","Ava","Isabella","Evelyn","Harper","Lily","Luna","Ella","Scarlett","Abigail","Chloe","Zoey","Penelope","Grace","Victoria","Eleanor","Nora","Layla","Hazel","Violet","Aurora","Claire","Ellie","Stella","Natalie","Zoe","Eva","Maya","Camila","Riley","Hannah","Avery","Sofia","Aria","Alexa","Alyssa","Anna","Bella","Brooke","Delaney","Diana","Eden","Elena","Eliana","Emily","Fiona","Freya","Gianna","Hailey","Haven","Isla","Ivy","Jade","Juliet","Juliette","June","Kate","Kayla","Kendall","Kylie","Laila","Lila","Lucy","Mackenzie","Madison","Maisie","Margaret"],
+      neutral: ["Quinn","Riley","Morgan","Avery","Peyton","Finley","Rowan","Sage","River","Skyler","Emerson","Phoenix","Hayden","Cameron","Bailey","Drew","Blake","Charlie","Dakota","Ellis","Frankie","Harley","Jesse","Kendall","Lee","Logan","Marlow","Max","Micah","Nico","Parker","Reagan","Remy","Robin","Ryan","Sam","Sidney","Spencer","Tatum","Taylor","Tyler","Wren","Alex","Ash","Blair","Brett","Casey","Chris","Dani","Eddie","Evan","Fran","Gale","Hollis","Indy","Jay","Jules","Kai","Kit","Lake","Lark"] }
+  };
+
+  // ─── HELPERS ───────────────────────────────────────────────────────────────
+  function norm(name) {
+    return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
+  function getNamesOfLength(country, gender, length) {
+    const db = NAME_DB[country]; if (!db) return [];
+    const pool = gender === "neutral" ? db.neutral : gender === "male" ? db.male : db.female;
+    return pool.filter(n => norm(n).length === length);
+  }
+  function buildPool(countries, gender, length, universalOnly) {
+    if (!countries.length) return [];
+    const map = {};
+    for (const c of countries) {
+      for (const name of getNamesOfLength(c, gender, length)) {
+        const key = norm(name);
+        if (!map[key]) map[key] = { display: name, countries: [] };
+        if (!map[key].countries.includes(c)) map[key].countries.push(c);
+      }
+    }
+    let entries = Object.values(map);
+    if (universalOnly && countries.length > 1)
+      entries = entries.filter(e => e.countries.length === countries.length);
+    return entries.sort(() => Math.random() - 0.5);
+  }
+  function pickEntry(pool, excluded) {
+    return pool.find(e => !excluded.has(norm(e.display))) || null;
+  }
+
+  // ─── STATE ─────────────────────────────────────────────────────────────────
+  const state = {
+    step: "config",            // "config" | "results"
+    isTriplet: false,
+    genders: ["female","male","neutral"],
+    nameLength: 5,
+    selectedCountries: ["italy","spain","usa"],
+    universalOnly: false,
+    pools: [[],[],[]],
+    excluded: [new Set(), new Set(), new Set()],
+    entries: [null, null, null],
+    noResults: [false, false, false],
+  };
+
+  function setState(patch) { Object.assign(state, patch); render(); }
+
+  // ─── RENDER ────────────────────────────────────────────────────────────────
+  const CHILD_LABELS = ["First Child","Second Child","Third Child"];
+  const countryKeys  = Object.keys(NAME_DB);
+
+  function el(tag, attrs, ...children) {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (k === "class") node.className = v;
+      else if (k.startsWith("on")) node.addEventListener(k.slice(2).toLowerCase(), v);
+      else if (k === "title") node.title = v;
+      else node.setAttribute(k, v);
+    }
+    for (const child of children.flat()) {
+      if (child == null) continue;
+      node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+    }
+    return node;
+  }
+  function text(s) { return document.createTextNode(s); }
+
+  // ── Choice button ──
+  function choiceBtn(label, active, onClick) {
+    return el("button", { class: "choice-btn " + (active ? "active" : "inactive"), onCLICK: onClick }, label);
+  }
+
+  // ── Gender block ──
+  function genderBlock(idx, label) {
+    const opts = [
+      { id: "male", icon: "♂", lbl: "Boy" },
+      { id: "female", icon: "♀", lbl: "Girl" },
+      { id: "neutral", icon: "◇", lbl: "Neutral" },
+    ];
+    const current = state.genders[idx];
+    return el("div", { class: "gender-block" },
+      el("p", { class: "gender-block-label" }, label),
+      el("div", { class: "gender-opts" },
+        ...opts.map(o => el("button", {
+          class: "gender-opt " + (current === o.id ? "active" : "inactive"),
+          onCLICK: () => {
+            const g = [...state.genders]; g[idx] = o.id; setState({ genders: g });
+          }
+        }, el("span", { class: "icon" }, o.icon), o.lbl))
+      )
+    );
+  }
+
+  // ── Toggle switch ──
+  function toggleSwitch(value, disabled, onChange, label, sublabel) {
+    const track = el("button", {
+      class: "toggle-track",
+      style: `background:${value && !disabled ? "#5c4a2a" : "#d4c4a0"};cursor:${disabled ? "not-allowed" : "pointer"}`,
+      onCLICK: () => { if (!disabled) onChange(!value); }
+    }, el("span", { class: "toggle-thumb", style: `left:${value && !disabled ? "26px" : "4px"}` }));
+    const lbl = el("span", { class: "toggle-label", style: `color:${value && !disabled ? "#5c4a2a" : "#a08060"}` }, value && !disabled ? "ON" : "OFF");
+    const textDiv = el("div", { class: "toggle-text" },
+      el("p", { class: "toggle-title" }, label),
+      el("p", { class: "toggle-sub" }, sublabel)
+    );
+    return el("div", { class: "toggle-row" + (disabled ? " disabled" : "") }, textDiv, track, lbl);
+  }
+
+  // ── Name card ──
+  function nameCard(idx, allCountries) {
+    const entry = state.noResults[idx] ? null : state.entries[idx];
+    const name  = entry ? entry.display : null;
+    const nameCountries = entry ? entry.countries : [];
+    const isUniversal = entry && allCountries.length > 1 && nameCountries.length === allCountries.length;
+
+    const card = el("div", { class: "name-card" },
+      el("p", { class: "card-child-label" }, CHILD_LABELS[idx]),
+      el("p", { class: "card-name" }, name || "—"),
+      name ? el("p", { class: "card-letters" }, norm(name).length + " letters") : null,
+      name ? el("button", {
+        class: "card-skip", title: "Skip this name",
+        onCLICK: () => excludeAndReplace(idx)
+      }, "×") : null,
+      name ? el("div", { class: "card-footer" },
+        el("div", { class: "card-flags" },
+          ...nameCountries.map(c => el("span", { class: "card-flag", title: NAME_DB[c].label }, NAME_DB[c].flag))
+        ),
+        isUniversal ? el("span", { class: "universal-badge", title: "Found in all selected databases" }, "✦ universal") : null
+      ) : null
+    );
+
+    // pop animation
+    card.classList.add("pop");
+    setTimeout(() => card.classList.remove("pop"), 400);
+    return card;
+  }
+
+  // ── Config screen ──
+  function renderConfig() {
+    const count = state.isTriplet ? 3 : 2;
+    const universalDisabled = state.selectedCountries.length < 2;
+
+    return el("div", {},
+      // Twins / Triplets
+      el("div", { class: "section" },
+        el("p", { class: "section-label" }, "How many children?"),
+        el("div", { class: "btn-row" },
+          choiceBtn("Twins",    !state.isTriplet, () => setState({ isTriplet: false })),
+          choiceBtn("Triplets",  state.isTriplet, () => setState({ isTriplet: true  }))
+        )
+      ),
+      // Gender
+      el("div", { class: "section" },
+        el("p", { class: "section-label" }, "Gender for each child"),
+        el("div", { class: "gender-grid" },
+          ...[0,1,2].slice(0, count).map(i => genderBlock(i, CHILD_LABELS[i]))
+        )
+      ),
+      // Length
+      el("div", { class: "section" },
+        el("p", { class: "section-label" }, "Name length: " + state.nameLength + " letters"),
+        el("div", { class: "btn-row", style: "flex-wrap:wrap" },
+          ...[3,4,5,6,7,8,9,10].map(l =>
+            el("button", {
+              class: "length-btn " + (state.nameLength === l ? "active" : "inactive"),
+              onCLICK: () => setState({ nameLength: l })
+            }, String(l))
+          )
+        )
+      ),
+      // Countries + Universal
+      el("div", { class: "section" },
+        el("p", { class: "section-label" }, "Name databases"),
+        el("div", { class: "btn-row", style: "margin-bottom:22px;flex-wrap:wrap" },
+          ...countryKeys.map(c =>
+            el("button", {
+              class: "country-btn " + (state.selectedCountries.includes(c) ? "active" : "inactive"),
+              onCLICK: () => {
+                const sel = state.selectedCountries;
+                setState({ selectedCountries: sel.includes(c)
+                  ? (sel.length > 1 ? sel.filter(x => x !== c) : sel)
+                  : [...sel, c]
+                });
+              }
+            }, NAME_DB[c].label)
+          )
+        ),
+        el("div", { class: "divider" },
+          toggleSwitch(
+            state.universalOnly,
+            universalDisabled,
+            v => setState({ universalOnly: v }),
+            "Universal names only",
+            universalDisabled
+              ? "Select 2+ countries to enable this filter"
+              : "Only names present in all " + state.selectedCountries.length + " selected databases"
+          )
+        )
+      ),
+      // Discover button
+      el("button", { class: "discover-btn", onCLICK: generateResults }, "Discover Names →")
+    );
+  }
+
+  // ── Results screen ──
+  function renderResults() {
+    const count = state.isTriplet ? 3 : 2;
+    const indices = [0,1,2].slice(0, count);
+    const anyNoResult = state.noResults.some((v, i) => i < count && v);
+    const anyExcluded = indices.some(i => state.excluded[i].size > 0);
+
+    const children = [];
+
+    // Universal banner
+    if (state.universalOnly) {
+      children.push(el("div", { class: "banner-universal" },
+        "✦ Universal mode · only names shared across all " + state.selectedCountries.length + " selected databases"
+      ));
+    }
+
+    // Cards
+    children.push(el("div", { class: "cards-row" },
+      ...indices.map(i => nameCard(i, state.selectedCountries))
+    ));
+
+    // No result banner
+    if (anyNoResult) {
+      children.push(el("div", { class: "banner-noresult" },
+        "No " + state.nameLength + "-letter names found" +
+        (state.universalOnly ? " in all selected databases" : "") +
+        ". Try a different length" + (state.universalOnly ? " or turn off Universal mode" : "") + "."
+      ));
+    }
+
+    // Skipped names
+    if (anyExcluded) {
+      const skippedItems = indices.flatMap(i =>
+        Array.from(state.excluded[i]).map(n => el("span", { class: "skipped-name" }, n))
+      );
+      children.push(el("div", { class: "skipped-box" },
+        el("p", { class: "skipped-title" }, "Skipped"),
+        el("div", { style: "display:flex;gap:8px;flex-wrap:wrap" }, ...skippedItems)
+      ));
+    }
+
+    // Controls
+    children.push(el("div", { class: "controls" },
+      el("button", { class: "btn-primary", onCLICK: refreshAll }, "↻ New set"),
+      el("button", { class: "btn-secondary", onCLICK: () => setState({ step: "config" }) }, "← Change settings")
+    ));
+
+    // Legend
+    children.push(el("div", { class: "legend" },
+      state.selectedCountries.map(c => NAME_DB[c].flag + " " + NAME_DB[c].label).join("  ·  ")
+    ));
+
+    return el("div", {}, ...children);
+  }
+
+  // ─── ACTIONS ───────────────────────────────────────────────────────────────
+  function generateResults() {
+    const count = state.isTriplet ? 3 : 2;
+    const pools = [], entries = [], excluded = [], noResults = [];
+    for (let i = 0; i < count; i++) {
+      const p = buildPool(state.selectedCountries, state.genders[i], state.nameLength, state.universalOnly);
+      const ex = new Set();
+      pools.push(p); entries.push(pickEntry(p, ex)); excluded.push(ex); noResults.push(!pickEntry(p, ex));
+    }
+    // fix: noResults should check if entry is null
+    const fixedNoResults = entries.map(e => !e);
+    setState({ step: "results", pools, entries, excluded, noResults: fixedNoResults });
+  }
+
+  function excludeAndReplace(idx) {
+    const newExcluded = state.excluded.map((s, i) => {
+      if (i !== idx) return s;
+      const ns = new Set(s);
+      if (state.entries[i]) ns.add(norm(state.entries[i].display));
+      return ns;
+    });
+    const newEntry = pickEntry(state.pools[idx], newExcluded[idx]);
+    const newEntries  = state.entries.map((e, i) => i === idx ? newEntry : e);
+    const newNoResults = state.noResults.map((nr, i) => i === idx ? !newEntry : nr);
+    setState({ excluded: newExcluded, entries: newEntries, noResults: newNoResults });
+  }
+
+  function refreshAll() {
+    const count = state.isTriplet ? 3 : 2;
+    const newPools = [], newEntries = [], newExcluded = [], newNoResults = [];
+    for (let i = 0; i < count; i++) {
+      const p = buildPool(state.selectedCountries, state.genders[i], state.nameLength, state.universalOnly);
+      const ex = new Set();
+      newPools.push(p); newEntries.push(pickEntry(p, ex)); newExcluded.push(ex); newNoResults.push(!pickEntry(p, ex));
+    }
+    const fixedNoResults = newEntries.map(e => !e);
+    setState({ pools: newPools, entries: newEntries, excluded: newExcluded, noResults: fixedNoResults });
+  }
+
+  // ─── MAIN RENDER ───────────────────────────────────────────────────────────
+  function render() {
+    const root = document.getElementById("root");
+    root.innerHTML = "";
+
+    const container = el("div", { class: "container" },
+      // Header
+      el("div", { class: "header" },
+        el("p", { class: "header-eyebrow" }, "Name Discovery"),
+        el("h1", { class: "header-title" }, "Twin & Triplet\u00A0", el("em", {}, "Names")),
+        el("p", { class: "header-sources" }, "ISTAT · INE · SSA · ONS · INSEE · Destatis · SCB · StatCan")
+      ),
+      state.step === "config" ? renderConfig() : renderResults()
+    );
+    root.appendChild(container);
+  }
+
+  // Boot
+  render();
+  </script>
+</body>
+</html>

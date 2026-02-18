@@ -4,7 +4,7 @@
 **vibed coded with Claude (Sonnet 4.6) from an old idea.** 
 
 App for discovering matching names for twins and triplets — filtered by gender, character length, and country of origin, drawing from official national statistics databases across 8 countries.
-Live demo → (replace with your domain)
+Live demo → https://teowaits.github.io/TwinNames/
 
 ## Features
 
@@ -36,7 +36,7 @@ One external resource — Google Fonts (Cormorant Garamond + DM Mono), loaded vi
 
 ## Getting Started
 **Option 1 — Just open it**
-bashgit clone https://github.com/teowaits/twin-names.git
+bashgit clone https://github.com/teowaits/twinnames.git
 cd twin-names
 open index.html   # macOS
 # or double-click index.html in your file explorer

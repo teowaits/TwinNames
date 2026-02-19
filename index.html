@@ -201,6 +201,37 @@
       .name-card { min-width: 140px; }
       .section { padding: 18px; }
     }
+    /* Footer credit */
+    .footer {
+      text-align: center;
+      padding: 32px 0 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-credit {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.52rem;
+      color: #a08060;
+      letter-spacing: 0.1em;
+    }
+    .footer-sources {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.5rem;
+      color: #b8a080;
+      letter-spacing: 0.08em;
+      line-height: 2;
+    }
+    .footer-sources a {
+      color: #8b6e42;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(139,110,66,0.3);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .footer-sources a:hover {
+      color: #5c4a2a;
+      border-bottom-color: #5c4a2a;
+    }
   </style>
 </head>
 <body>
@@ -449,7 +480,9 @@
         )
       ),
       // Discover button
-      el("button", { class: "discover-btn", onCLICK: generateResults }, "Discover Names →")
+      el("button", { class: "discover-btn", onCLICK: generateResults }, "Discover Names →"),
+      // Footer
+      renderFooter()
     );
   }
 
@@ -505,7 +538,42 @@
       state.selectedCountries.map(c => NAME_DB[c].flag + " " + NAME_DB[c].label).join("  ·  ")
     ));
 
+    // Footer
+    children.push(renderFooter());
+
     return el("div", {}, ...children);
+  }
+
+  // ── Shared footer ──
+  function renderFooter() {
+    const sources = [
+      { label: "ISTAT",    href: "https://www.istat.it/it/popolazione-e-famiglie/nascite-e-decessi/nomi-e-cognomi" },
+      { label: "INE",      href: "https://www.ine.es/dyngs/INEbase/es/operacion.htm?c=Estadistica_C&cid=1254736177009&menu=resultados&idp=1254734710990" },
+      { label: "SSA",      href: "https://www.ssa.gov/oact/babynames/" },
+      { label: "ONS",      href: "https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/livebirths/bulletins/babynamesenglandandwales/2023" },
+      { label: "INSEE",    href: "https://www.insee.fr/fr/statistiques/7635407" },
+      { label: "Destatis", href: "https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/Geburten/Tabellen/vornamen-rangliste.html" },
+      { label: "SCB",      href: "https://www.scb.se/hitta-statistik/statistik-efter-amne/befolkning/amnesovergripande-statistik/namnstatistik/" },
+      { label: "StatCan",  href: "https://www.statcan.gc.ca/en/subjects-start/population_and_demography" },
+    ];
+
+    const sourceLinks = [];
+    sources.forEach((s, i) => {
+      sourceLinks.push(el("a", { href: s.href, target: "_blank", rel: "noopener noreferrer" }, s.label));
+      if (i < sources.length - 1) sourceLinks.push(document.createTextNode(" · "));
+    });
+
+    return el("footer", { class: "footer" },
+      el("p", { class: "footer-credit" },
+        "Conceived by teowaits for L\u0026E · ",
+        el("a", { href: "https://github.com/teowaits/TwinName", target: "_blank", rel: "noopener noreferrer",
+          style: "color:#8b6e42;text-decoration:none;border-bottom:1px solid rgba(139,110,66,0.3);" },
+          "TwinName on GitHub"
+        ),
+        " · MIT License"
+      ),
+      el("p", { class: "footer-sources" }, ...sourceLinks)
+    );
   }
 
   // ─── ACTIONS ───────────────────────────────────────────────────────────────

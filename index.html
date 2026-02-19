@@ -623,9 +623,9 @@
     const container = el("div", { class: "container" },
       // Header
       el("div", { class: "header" },
-        el("p", { class: "header-eyebrow" }, "Name Discovery"),
+        el("p", { class: "header-eyebrow" }, "Double trouble? Name it!"),
         el("h1", { class: "header-title" }, "Twin & Triplet\u00A0", el("em", {}, "Names")),
-        el("p", { class: "header-sources" }, "ISTAT · INE · SSA · ONS · INSEE · Destatis · SCB · StatCan")
+        el("p", { class: "header-sources" }, "Sources: ISTAT · INE · SSA · ONS · INSEE · Destatis · SCB · StatCan")
       ),
       state.step === "config" ? renderConfig() : renderResults()
     );

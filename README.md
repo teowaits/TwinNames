@@ -3,7 +3,7 @@
 
 **vibed coded with Claude (Sonnet 4.6) from an old idea.** 
 
-App for discovering matching names for twins and triplets — filtered by gender, character length, and country of origin, drawing from official national statistics databases across 8 countries.
+App for discovering matching names for twins and triplets — filtered by gender, character length, and country of origin, drawing from official national statistics databases across 11 countries.
 Live demo → https://teowaits.github.io/TwinNames/
 
 ## Features
@@ -11,7 +11,7 @@ Live demo → https://teowaits.github.io/TwinNames/
 **Twins or triplets** — choose between 2 or 3 children
 **Gender per child** — set Boy, Girl, or Gender-Neutral independently for each
 **Name length filter** — match names by exact letter count (3–10), so your twins can share the same rhythm
-**8 official databases** — toggle any combination of countries to search across
+**11 official databases** — toggle any combination of countries to search across
 **Universal mode** — optionally restrict results to names that appear in all selected databases simultaneously (e.g. "Lucia" appears in Italy, Spain, Sweden and France)
 **Country flags on every card** — instantly see which databases contain each suggested name
 **✦ Universal badge** — cards are tagged when a name is truly cross-cultural
@@ -21,8 +21,22 @@ Live demo → https://teowaits.github.io/TwinNames/
 
 
 ## Data Sources
-All name lists are drawn from official government statistics, 2023 editions:
-CountrySourceDataset🇮🇹 ItalyISTATMost common given names🇪🇸 SpainINENombres más frecuentes🇺🇸 USASSAPopular baby names🇬🇧 UKONSBaby names, England & Wales🇫🇷 FranceINSEEPrénoms les plus attribués🇩🇪 GermanyDestatisBeliebteste Vornamen🇸🇪 SwedenSCBNamnstatistik🇨🇦 CanadaStatistics CanadaMost popular baby names
+All name lists are drawn from official government statistics (2023 editions unless noted):
+
+| Country | Source | Dataset |
+|---------|--------|---------|
+| 🇮🇹 Italy | [ISTAT](https://www.istat.it/dati/calcolatori/contanomi/) | Most common given names |
+| 🇪🇸 Spain | [INE](https://www.ine.es/dyngs/INEbase/operacion.htm?c=Estadistica_C&cid=1254736177009&menu=ultiDatos&idp=1254735572981) | Nombres más frecuentes |
+| 🇺🇸 USA | [SSA](https://www.ssa.gov/oact/babynames/) | Popular baby names |
+| 🇬🇧 UK | [ONS](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/livebirths/bulletins/babynamesenglandandwales/2023) | Baby names, England & Wales |
+| 🇫🇷 France | [INSEE](https://www.insee.fr/fr/statistiques/8205628) | Prénoms les plus attribués |
+| 🇩🇪 Germany | [GfdS](https://gfds.de/vornamen/beliebteste-vornamen/) | Beliebteste Vornamen |
+| 🇸🇪 Sweden | [SCB](https://www.scb.se/hitta-statistik/statistik-efter-amne/befolkning-och-levnadsforhallanden/ovrigt/namnstatistik/) | Namnstatistik |
+| 🇨🇦 Canada | [Statistics Canada](https://www.statcan.gc.ca/en/subjects-start/population_and_demography) | Most popular baby names |
+| 🇮🇪 Ireland | [CSO](https://www.cso.ie/en/statistics/birthsdeathsandmarriages/irishbabiesnames/) | Irish Babies Names |
+| 🇧🇷 Brazil | [IBGE](https://censo2022.ibge.gov.br/nomes) | Nomes no Brasil (Census 2022) |
+| 🇳🇱 Netherlands | [SVB](https://www.svb.nl/nl/kindernamen/) | Populairste kindernamen |
+
 Name lists include male, female, and gender-neutral categories for each country. Accent-insensitive matching is used throughout — so "Lucia" correctly matches "Lucía", enabling true cross-country comparison.
 
 ## Tech Stack
@@ -62,6 +76,7 @@ Upload index.html to your domain's public_html (or www) root. Done.
 twin-names/
 └── index.html      # The entire application
 └── README.md       # This file
+└── CNAME           # GitHub Pages custom domain
 
 ## How It Works
 **Name matching**
@@ -93,12 +108,21 @@ Each entry needs a label, flag, and three arrays: male, female, neutral.
 ## Contributing
 Pull requests are welcome. Ideas for improvement:
 
-Add more countries (Portugal 🇵🇹, Netherlands 🇳🇱, Japan 🇯🇵, Brazil 🇧🇷…)
-Expand neutral/non-binary name lists
-Add a "meaning" tooltip powered by a public name API
-Export a shortlist to PDF or clipboard
+- Add more countries (Portugal 🇵🇹, Japan 🇯🇵, India 🇮🇳, Norway 🇳🇴…)
+- Expand neutral/non-binary name lists
+- Add a "meaning" tooltip powered by a public name API
+- Export a shortlist to PDF or clipboard
 
 Please keep the zero-dependency philosophy intact — no build tools, no frameworks.
+
+## Changelog
+
+### May 2025
+- **Added Netherlands 🇳🇱** — 60 male, 60 female, 25 neutral names from the SVB (Sociale Verzekeringsbank), 2025 rankings
+- **Added Ireland 🇮🇪** — 55 male, 55 female, 18 neutral names from the CSO (Central Statistics Office), including Irish Gaelic names: Oisín, Tadhg, Fiadh, Caoimhe, Saoirse, Sadhbh, and more
+- **Added Brazil 🇧🇷** — 55 male, 55 female, 10 neutral names from the IBGE (Instituto Brasileiro de Geografia e Estatística), with correct Brazilian Portuguese accents; footer links to the interactive [Nomes no Brasil](https://censo2022.ibge.gov.br/nomes) Census 2022 app
+- **Fixed broken source links** — ISTAT, INE, INSEE, and SCB had all reorganised their URLs; links updated to current pages
+- **Corrected Germany source** — was incorrectly attributed to Destatis (which does not publish name rankings); corrected to GfdS (Gesellschaft für Deutsche Sprache), the actual official source
 
 ## License
 **MIT** — do whatever you like with it.

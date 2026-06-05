@@ -3,655 +3,326 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Twin & Triplet Names</title>
+  <title>TwinNames — Two of a Kind</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; }
-    body {
-      min-height: 100vh;
-      background: linear-gradient(160deg, #f5efe6 0%, #ede3d2 45%, #e6d9c4 100%);
-      font-family: 'Cormorant Garamond', serif;
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+
+    /* ── THEME TOKENS ──────────────────────────────────────────────────────── */
+    .stage[data-theme="bright"] {
+      --bg: #fffdf8; --ink: #2b2440; --muted: #8d85a3; --card: #ffffff;
+      --c1: #ff4f87; --c2: #12bccb; --c3: #8a5cf0; --gold: #ffb524;
+      --line: rgba(43,36,64,0.10); --soft: rgba(43,36,64,0.04);
+      --blob1: rgba(255,79,135,0.16); --blob2: rgba(18,188,203,0.16); --blob3: rgba(138,92,240,0.14);
     }
-    button { font-family: inherit; cursor: pointer; }
-    /* Orbs */
-    .orb1 {
-      position: fixed; top: -80px; right: -80px; width: 380px; height: 380px;
-      border-radius: 50%; pointer-events: none;
-      background: radial-gradient(circle, rgba(180,150,100,0.09) 0%, transparent 70%);
+    .stage[data-theme="pastel"] {
+      --bg: #fdfbff; --ink: #4a4458; --muted: #a59fb4; --card: #ffffff;
+      --c1: #ff9ab7; --c2: #71d4d4; --c3: #bda4ee; --gold: #ffd277;
+      --line: rgba(74,68,88,0.09); --soft: rgba(74,68,88,0.035);
+      --blob1: rgba(255,154,183,0.18); --blob2: rgba(113,212,212,0.18); --blob3: rgba(189,164,238,0.16);
     }
-    .orb2 {
-      position: fixed; bottom: -60px; left: -60px; width: 300px; height: 300px;
-      border-radius: 50%; pointer-events: none;
-      background: radial-gradient(circle, rgba(180,150,100,0.09) 0%, transparent 70%);
+    .stage[data-theme="warm"] {
+      --bg: #f1e7d6; --ink: #2d1f0e; --muted: #8b7355; --card: #faf6ef;
+      --c1: #b5734e; --c2: #7d8a5b; --c3: #9c6f8e; --gold: #c79a3a;
+      --line: rgba(92,74,42,0.18); --soft: rgba(92,74,42,0.05);
+      --blob1: rgba(180,150,100,0.12); --blob2: rgba(125,138,91,0.10); --blob3: rgba(156,111,142,0.10);
     }
-    /* Layout */
-    #root { padding: 40px 20px; position: relative; }
-    .container { max-width: 800px; margin: 0 auto; }
-    /* Header */
-    .header { text-align: center; margin-bottom: 48px; }
-    .header-eyebrow {
-      font-family: 'DM Mono', monospace; font-size: 0.58rem;
-      letter-spacing: 0.28em; color: #8b7355; text-transform: uppercase; margin-bottom: 14px;
+
+    body { font-family: 'Fredoka', system-ui, sans-serif; background: var(--bg, #fffdf8); }
+    .stage { min-height: 100vh; background: var(--bg); position: relative; overflow-x: hidden; transition: background .3s; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+    .bg-blobs { position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(420px 420px at 88% -4%, var(--blob1), transparent 70%),
+        radial-gradient(380px 380px at -6% 18%, var(--blob2), transparent 70%),
+        radial-gradient(460px 460px at 50% 112%, var(--blob3), transparent 72%);
     }
-    .header-title {
-      font-family: 'Cormorant Garamond', serif; font-size: clamp(2.4rem, 5.5vw, 3.8rem);
-      font-weight: 300; color: #2d1f0e; letter-spacing: 0.05em; line-height: 1.1; margin-bottom: 10px;
+    .container { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 28px 18px 64px; }
+
+    /* ── Masthead / logo ── */
+    .masthead { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 26px; }
+    .mast-spacer { width: 38px; flex: 0 0 auto; }
+    .info-btn { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; border: 1.5px solid var(--line);
+      background: var(--card); color: var(--muted); font-weight: 700; font-style: italic; font-size: 1.05rem;
+      font-family: 'DM Mono', monospace; box-shadow: 0 4px 12px var(--soft); transition: transform .15s, color .2s, border-color .2s; }
+    .info-btn:hover { transform: translateY(-2px); color: var(--c2); border-color: var(--c2); }
+    .logo { display: flex; align-items: center; gap: 11px; }
+    .logo-tags { position: relative; width: 38px; height: 30px; }
+    .logo-tags .tag { position: absolute; width: 26px; height: 26px; border-radius: 9px 9px 9px 2px; }
+    .logo-tags .t1 { left: 0; top: 2px; background: var(--c1); transform: rotate(-8deg); }
+    .logo-tags .t2 { right: 0; top: 0; background: var(--c2); transform: rotate(8deg); }
+    .logo-word { font-weight: 700; font-size: 1.5rem; color: var(--ink); letter-spacing: -0.01em; }
+    .logo-word span { color: var(--c1); }
+
+    /* ── Panels ── */
+    .config { display: flex; flex-direction: column; gap: 16px; }
+    .panel { position: relative; background: var(--card); border: 1.5px solid var(--line);
+      border-radius: 22px; padding: 22px 20px 20px; box-shadow: 0 8px 26px var(--soft); }
+    .panel-icon { position: absolute; top: -15px; left: 22px; width: 34px; height: 34px;
+      display: grid; place-items: center; font-size: 1rem; background: var(--card);
+      border: 1.5px solid var(--line); border-radius: 11px; }
+
+    /* segmented controls */
+    .seg { display: inline-flex; gap: 8px; }
+    .seg-btn { border: 1.5px solid var(--line); border-radius: 14px; background: var(--bg);
+      color: var(--muted); transition: transform .15s, background .2s, color .2s, border-color .2s, box-shadow .2s; }
+    .seg-btn:active { transform: scale(0.95); }
+
+    .big-seg { display: flex; gap: 12px; justify-content: center; width: 100%; }
+    .count-btn { flex: 1; max-width: 220px; padding: 16px 10px; display: flex; flex-direction: column;
+      align-items: center; gap: 6px; border-radius: 18px; }
+    .count-babies { font-size: 1.5rem; line-height: 1; filter: grayscale(0.6); opacity: .65; transition: .2s; }
+    .count-num { font-weight: 700; font-size: 1.15rem; color: var(--muted); }
+    .count-btn.on { background: var(--ink); border-color: var(--ink); box-shadow: 0 8px 22px var(--soft); }
+    .count-btn.on .count-num { color: #fff; }
+    .count-btn.on .count-babies { filter: none; opacity: 1; }
+
+    /* gender */
+    .gender-stack { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .gender-row { display: flex; align-items: center; gap: 14px; }
+    .child-dot { width: 26px; height: 26px; border-radius: 50%; color: #fff; font-weight: 700;
+      font-size: .82rem; display: grid; place-items: center; box-shadow: 0 2px 6px var(--soft); }
+    .gender-btn { width: 52px; height: 46px; border-radius: 13px; font-size: 1.4rem; line-height: 1; }
+    .gender-btn.g-female.on { background: var(--c1); border-color: var(--c1); color: #fff; }
+    .gender-btn.g-male.on   { background: var(--c2); border-color: var(--c2); color: #fff; }
+    .gender-btn.g-neutral.on{ background: var(--c3); border-color: var(--c3); color: #fff; }
+    .gender-btn.on { box-shadow: 0 6px 16px var(--soft); }
+
+    /* length */
+    .len-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+    .len-btn { aspect-ratio: 1; border: 1.5px solid var(--line); border-radius: 13px; background: var(--bg);
+      color: var(--ink); font-weight: 600; font-size: 1rem; transition: .15s; }
+    .len-btn:active { transform: scale(0.92); }
+    .len-btn.on { background: var(--c3); border-color: var(--c3); color: #fff; box-shadow: 0 6px 16px var(--soft); transform: translateY(-1px); }
+    .len-preview { display: flex; gap: 6px; justify-content: center; margin-top: 16px; height: 10px; }
+    .len-prev-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c3); opacity: .55; }
+
+    /* countries flag grid */
+    .flag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: 10px; }
+    .flag-tile { aspect-ratio: 1; border: 2px solid var(--line); border-radius: 16px; background: var(--bg);
+      display: grid; place-items: center; transition: transform .15s, border-color .2s, box-shadow .2s, background .2s;
+      filter: grayscale(0.85); opacity: .6; }
+    .flag-big { font-size: 1.8rem; line-height: 1; }
+    .flag-tile:hover { transform: translateY(-2px); }
+    .flag-tile.on { filter: none; opacity: 1; border-color: var(--c2); background: var(--card);
+      box-shadow: 0 8px 18px var(--soft); transform: translateY(-2px); }
+
+    /* venn / universal */
+    .venn-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 18px;
+      padding-top: 16px; border-top: 1.5px dashed var(--line); transition: opacity .2s; }
+    .venn-row.disabled { opacity: .4; }
+    .venn { position: relative; display: grid; place-items: center; padding: 4px; border-radius: 12px; }
+    .venn svg circle { fill: none; stroke: var(--muted); stroke-width: 2.5; transition: .25s; }
+    .venn.on svg circle { stroke: var(--gold); }
+    .venn.on svg circle:first-child { fill: color-mix(in srgb, var(--gold) 22%, transparent); }
+    .venn.on svg circle:last-child  { fill: color-mix(in srgb, var(--gold) 22%, transparent); }
+    .venn-star { position: absolute; font-size: .8rem; color: var(--gold); opacity: 0; transition: .25s; }
+    .venn.on .venn-star { opacity: 1; }
+    .venn-label { font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted); }
+
+    /* discover */
+    .discover { margin: 8px auto 0; display: flex; align-items: center; justify-content: center; gap: 14px;
+      padding: 18px 44px; border-radius: 22px; background: var(--ink); color: #fff;
+      box-shadow: 0 12px 30px var(--soft); transition: transform .15s, box-shadow .2s; }
+    .discover:hover { transform: translateY(-2px); box-shadow: 0 16px 38px var(--soft); }
+    .discover:active { transform: scale(0.97); }
+    .disc-spark { color: var(--gold); font-size: 1.3rem; animation: twinkle 2.4s ease-in-out infinite; }
+    .disc-babies { font-size: 1.5rem; }
+    .disc-arrow { font-size: 1.4rem; font-weight: 700; }
+    @keyframes twinkle { 0%,100% { transform: scale(1) rotate(0); opacity: 1; } 50% { transform: scale(1.25) rotate(20deg); opacity: .7; } }
+
+    /* ── RESULTS ── */
+    .results { display: flex; flex-direction: column; align-items: center; gap: 26px; }
+    .cards-row { display: flex; align-items: stretch; justify-content: center; gap: 0; flex-wrap: nowrap; width: 100%; margin-top: 8px; }
+
+    .card { flex: 1; max-width: 260px; min-width: 0; perspective: 1200px; }
+    .card.flip .flip-inner { position: relative; width: 100%; min-height: 260px; transform-style: preserve-3d;
+      transition: transform .6s cubic-bezier(.2,.9,.3,1.2); transform: rotateY(180deg); }
+    .card.flip .flip-inner.revealed { transform: rotateY(0deg); }
+    .face { border-radius: 24px; }
+    .card.flip .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      transition: opacity 0s linear .3s; }
+    .card.flip .face-mystery { transform: rotateY(180deg); }
+    /* opacity swap at the flip midpoint — robust even if 3D context flattens */
+    .card.flip .flip-inner:not(.revealed) .face-name { opacity: 0; pointer-events: none; }
+    .card.flip .flip-inner.revealed .face-mystery { opacity: 0; pointer-events: none; }
+
+    .face-name { background: var(--card); border: 2px solid var(--line); padding: 26px 18px 18px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      box-shadow: 0 10px 30px var(--soft); position: relative; min-height: 260px;
+      border-top: 5px solid var(--accent); }
+    .is-locked .face-name { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent), 0 10px 30px var(--soft); }
+
+    .face-mystery { background: linear-gradient(150deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #fff));
+      display: grid; place-items: center; min-height: 260px; box-shadow: 0 10px 30px var(--soft); }
+    .mystery-glyph { font-size: 3rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,.18)); }
+    .mystery-q { position: absolute; bottom: 22px; right: 26px; font-size: 1.6rem; font-weight: 700; color: rgba(255,255,255,.75); }
+
+    .card-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); margin-bottom: 12px; }
+    .card-name { font-weight: 600; font-size: clamp(1.5rem, 4.4vw, 2.1rem); color: var(--ink);
+      line-height: 1.05; letter-spacing: -0.02em; word-break: normal; overflow-wrap: normal; hyphens: none; max-width: 100%; }
+    .card-len { display: flex; gap: 4px; justify-content: center; margin-top: 12px; flex-wrap: wrap; max-width: 140px; }
+    .len-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); opacity: .5; }
+    .card-foot { display: flex; align-items: center; gap: 8px; margin-top: 18px; flex-wrap: wrap; justify-content: center; }
+    .card-flags { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+    .card-flags .flag { font-size: 1.05rem; }
+    .uni-badge { width: 24px; height: 24px; border-radius: 50%; background: var(--gold); color: #fff;
+      display: grid; place-items: center; font-size: .75rem; box-shadow: 0 2px 8px var(--soft); }
+
+    .card-icon { position: absolute; top: 12px; width: 30px; height: 30px; border-radius: 50%;
+      border: 1.5px solid var(--line); background: var(--card); font-size: .85rem; display: grid; place-items: center;
+      transition: .15s; z-index: 2; }
+    .card-icon:hover { border-color: var(--accent); transform: scale(1.1); }
+    .card-icon.lock { left: 12px; }
+    .card-icon.reroll { right: 12px; font-size: 1.05rem; color: var(--muted); }
+
+    .card-empty { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--muted); }
+    .empty-glyph { font-size: 2.2rem; opacity: .6; }
+    .empty-dash { font-size: 2rem; }
+
+    /* fly / none reveal */
+    .card.fly .face-name, .card.none .face-name { opacity: 1; }
+    .card.fly { opacity: 0; transform: translateY(16px) scale(.96); transition: opacity .45s, transform .45s cubic-bezier(.2,.9,.3,1.2); }
+    .card.fly.in { opacity: 1; transform: none; }
+    .card.fly:nth-child(odd) { transform: translateX(-24px) scale(.96); }
+    .card.fly.in:nth-child(odd) { transform: none; }
+
+    /* connector */
+    .connector { flex: 0 0 auto; display: flex; flex-direction: row; align-items: center; justify-content: center;
+      align-self: center; padding: 0 4px; }
+    .conn-line { width: 16px; height: 2px; background: var(--line); }
+    .conn-badge { width: 46px; height: 46px; border-radius: 50%; background: var(--card);
+      border: 2px solid var(--line); display: grid; place-items: center; margin: 0 4px;
+      box-shadow: 0 6px 16px var(--soft); flex: 0 0 auto; }
+    .conn-glyph { font-size: 1.5rem; color: var(--ink); font-weight: 700; line-height: 1; }
+    .conn-glyph.amp { font-family: 'Fredoka', serif; font-style: italic; color: var(--c2); }
+    .conn-glyph:not(.amp) { color: var(--c1); }
+    .connector.line-only .conn-line { width: 30px; }
+    .connector.pulse .conn-badge { animation: connpulse 1.1s ease-in-out infinite; border-color: var(--gold); }
+    @keyframes connpulse { 0%,100% { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in srgb, var(--gold) 45%, transparent); }
+      50% { transform: scale(1.12); box-shadow: 0 0 0 10px transparent; } }
+
+    /* action bar */
+    .action-bar { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .act { width: 60px; height: 60px; border-radius: 20px; background: var(--card); border: 1.5px solid var(--line);
+      font-size: 1.5rem; display: grid; place-items: center; box-shadow: 0 6px 18px var(--soft); transition: transform .15s, box-shadow .2s; }
+    .act:hover { transform: translateY(-2px); }
+    .act:active { transform: scale(0.93); }
+    .act:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+    .act.dice { background: var(--ink); color: #fff; }
+    .act.heart { color: var(--c1); font-size: 1.7rem; }
+    .act.heart.saved { background: var(--c1); color: #fff; animation: pop 0.4s; }
+    @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+    .act.share { color: var(--c2); }
+    .act.back { color: var(--muted); }
+
+    /* shortlist tray */
+    .tray { width: 100%; display: flex; align-items: center; gap: 12px; background: var(--soft);
+      border: 1.5px dashed var(--line); border-radius: 18px; padding: 12px 14px; }
+    .tray-head .heart-mini { color: var(--c1); font-size: 1.2rem; }
+    .tray-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 2px; }
+    .tray-chip { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; background: var(--card);
+      border: 1.5px solid var(--line); border-radius: 13px; padding: 8px 10px 8px 12px; transition: .15s; }
+    .tray-chip:hover { border-color: var(--c1); transform: translateY(-1px); }
+    .tray-names { font-weight: 600; font-size: .95rem; white-space: nowrap; }
+    .tray-amp, .share-amp { color: var(--muted); margin: 0 5px; font-style: italic; }
+    .tray-x { color: var(--muted); font-size: .7rem; width: 18px; height: 18px; border-radius: 50%; }
+    .tray-x:hover { background: var(--c1); color: #fff; }
+
+    /* ── Share card overlay ── */
+    .share-scrim { position: fixed; inset: 0; z-index: 50; background: rgba(20,16,30,.55);
+      backdrop-filter: blur(6px); display: grid; place-items: center; padding: 22px; animation: fade .25s; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    .share-stage { position: relative; animation: rise .35s cubic-bezier(.2,.9,.3,1.2); }
+    @keyframes rise { from { transform: translateY(20px) scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+    .share-card { background: var(--card); border-radius: 28px; padding: 40px 36px 26px; text-align: center;
+      box-shadow: 0 30px 70px rgba(20,16,30,.4); border: 2px solid var(--line);
+      background-image: radial-gradient(360px 200px at 50% -10%, var(--blob1), transparent 70%); min-width: 300px; }
+    .share-eyebrow { font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .25em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 22px; }
+    .share-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; }
+    .share-amp { font-size: 1.8rem; font-weight: 700; }
+    .share-name-block { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px 8px; }
+    .share-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); }
+    .share-name { font-weight: 600; font-size: clamp(2rem, 8vw, 3rem); color: var(--ink); line-height: 1; }
+    .share-flags { font-size: 1rem; display: flex; gap: 3px; }
+    .share-mark { margin-top: 26px; font-family: 'DM Mono', monospace; font-size: .6rem; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--muted); }
+    .share-mark span { color: var(--c1); }
+    .share-hint { text-align: center; margin-top: 16px; font-family: 'DM Mono', monospace; font-size: .62rem;
+      letter-spacing: .14em; color: rgba(255,255,255,.85); }
+    .share-close { position: absolute; top: -14px; right: -14px; width: 38px; height: 38px; border-radius: 50%;
+      background: #fff; color: var(--ink); font-size: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,.3); }
+
+    /* ── Info sheet ── */
+    .info-scrim { position: fixed; inset: 0; z-index: 55; background: rgba(20,16,30,.5); backdrop-filter: blur(6px);
+      display: flex; justify-content: center; align-items: flex-start; padding: 40px 18px; overflow-y: auto; animation: fade .25s; }
+    .info-sheet { position: relative; width: 100%; max-width: 460px; background: var(--card); border: 2px solid var(--line);
+      border-radius: 26px; padding: 30px 26px 24px; box-shadow: 0 30px 70px rgba(20,16,30,.4);
+      background-image: radial-gradient(320px 180px at 100% -8%, var(--blob2), transparent 70%);
+      animation: rise .35s cubic-bezier(.2,.9,.3,1.2); }
+    .info-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%;
+      border: 1.5px solid var(--line); background: var(--bg); color: var(--muted); font-size: .85rem; }
+    .info-close:hover { color: var(--ink); border-color: var(--ink); }
+    .info-eyebrow { font-family: 'DM Mono', monospace; font-size: .6rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--c2); margin: 4px 0 14px; }
+    .how-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
+    .how-step { display: flex; align-items: center; gap: 12px; }
+    .how-num { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; background: var(--c1); color: #fff;
+      font-weight: 700; font-size: .78rem; display: grid; place-items: center; }
+    .how-icon { flex: 0 0 auto; min-width: 52px; text-align: center; font-size: 1.05rem; letter-spacing: 2px; }
+    .how-label { font-size: .98rem; color: var(--ink); }
+    .src-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+    .src-row { display: flex; align-items: center; gap: 8px; padding: 9px 11px; border: 1.5px solid var(--line);
+      border-radius: 13px; background: var(--bg); text-decoration: none; transition: .15s; }
+    .src-row:hover { border-color: var(--c2); transform: translateY(-1px); background: var(--card); }
+    .src-flag { font-size: 1.2rem; }
+    .src-country { flex: 1; font-size: .85rem; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .src-acro { font-family: 'DM Mono', monospace; font-size: .58rem; letter-spacing: .04em; color: var(--muted); white-space: nowrap; }
+    .info-note { font-family: 'DM Mono', monospace; font-size: .58rem; line-height: 1.7; color: var(--muted); letter-spacing: .03em; }
+
+    /* ── Discreet footer ── */
+    .foot { margin-top: 36px; padding-top: 18px; border-top: 1.5px dashed var(--line); text-align: center;
+      font-family: 'DM Mono', monospace; font-size: .56rem; letter-spacing: .12em; color: var(--muted); line-height: 2; }
+    .foot a { color: var(--c1); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--c1) 35%, transparent); }
+    .foot a:hover { border-bottom-color: var(--c1); }
+    .foot-dot { margin: 0 8px; opacity: .6; }
+
+    /* confetti */
+    .confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 60; overflow: hidden; }
+    .confetti-wrap i { position: absolute; top: -20px; display: block; animation-name: fall; animation-timing-function: linear; animation-fill-mode: forwards; }
+    @keyframes fall { to { transform: translateY(110vh) rotate(620deg); opacity: .9; } }
+
+    @media (max-width: 560px) {
+      .cards-row { flex-direction: column; align-items: center; gap: 0; }
+      .card { width: 100%; max-width: 340px; }
+      .connector { flex-direction: column; padding: 4px 0; }
+      .connector .conn-line { width: 2px; height: 16px; }
+      .conn-badge { margin: 4px 0; }
+      .connector.line-only .conn-line { width: 2px; height: 26px; }
+      .len-grid { grid-template-columns: repeat(4, 1fr); }
+      .src-grid { grid-template-columns: 1fr; }
     }
-    .header-sources {
-      font-family: 'DM Mono', monospace; font-size: 0.58rem;
-      color: #8b7355; letter-spacing: 0.1em; line-height: 2;
-    }
-    /* Sections */
-    .section {
-      background: rgba(255,255,255,0.52); border-radius: 10px;
-      padding: 26px; border: 1px solid rgba(212,196,160,0.55); margin-bottom: 24px;
-    }
-    .section-label {
-      font-family: 'DM Mono', monospace; font-size: 0.58rem;
-      letter-spacing: 0.2em; color: #8b7355; text-transform: uppercase;
-      text-align: center; margin-bottom: 16px;
-    }
-    /* Toggle row */
-    .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    /* Choice buttons */
-    .choice-btn {
-      padding: 13px 32px; border: 1.5px solid; border-radius: 6px;
-      font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;
-      letter-spacing: 0.04em; transition: all 0.2s;
-    }
-    .choice-btn.active  { background: #5c4a2a; border-color: #5c4a2a; color: #f5efe6; }
-    .choice-btn.inactive{ background: transparent; border-color: #d4c4a0; color: #5c4a2a; }
-    /* Gender grid */
-    .gender-grid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-bottom: 0; }
-    .gender-block { text-align: center; }
-    .gender-block-label {
-      font-family: 'DM Mono', monospace; font-size: 0.65rem;
-      letter-spacing: 0.15em; color: #8b7355; text-transform: uppercase; margin-bottom: 8px;
-    }
-    .gender-opts { display: flex; gap: 8px; justify-content: center; }
-    .gender-opt {
-      padding: 10px 14px; border: 1.5px solid; border-radius: 4px;
-      font-family: 'DM Mono', monospace; font-size: 0.68rem;
-      letter-spacing: 0.06em; transition: all 0.2s;
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-    }
-    .gender-opt .icon { font-size: 1rem; line-height: 1; }
-    .gender-opt.active  { background: #5c4a2a; border-color: #5c4a2a; color: #f5efe6; }
-    .gender-opt.inactive{ background: transparent; border-color: #d4c4a0; color: #5c4a2a; }
-    /* Length buttons */
-    .length-btn {
-      width: 44px; height: 44px; border: 1.5px solid; border-radius: 4px;
-      font-family: 'DM Mono', monospace; font-size: 0.8rem; transition: all 0.2s;
-    }
-    .length-btn.active  { background: #5c4a2a; border-color: #5c4a2a; color: #f5efe6; }
-    .length-btn.inactive{ background: transparent; border-color: #d4c4a0; color: #5c4a2a; }
-    /* Country buttons */
-    .country-btn {
-      padding: 8px 13px; border: 1.5px solid; border-radius: 6px;
-      font-family: 'DM Mono', monospace; font-size: 0.6rem;
-      letter-spacing: 0.04em; transition: all 0.2s; line-height: 1.5;
-    }
-    .country-btn.active  { background: #5c4a2a; border-color: #5c4a2a; color: #f5efe6; }
-    .country-btn.inactive{ background: transparent; border-color: #d4c4a0; color: #5c4a2a; }
-    /* Divider */
-    .divider { border-top: 1px solid rgba(212,196,160,0.5); padding-top: 20px; margin-top: 6px; }
-    /* Toggle switch */
-    .toggle-row { display: flex; align-items: center; gap: 14px; justify-content: center; flex-wrap: wrap; transition: opacity 0.2s; }
-    .toggle-row.disabled { opacity: 0.45; }
-    .toggle-text { flex: 1; min-width: 180px; }
-    .toggle-title { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: #2d1f0e; }
-    .toggle-sub { font-family: 'DM Mono', monospace; font-size: 0.56rem; color: #8b7355; letter-spacing: 0.06em; margin-top: 3px; line-height: 1.5; }
-    .toggle-track {
-      width: 50px; height: 28px; border-radius: 14px; border: none;
-      position: relative; flex-shrink: 0; transition: background 0.25s;
-    }
-    .toggle-thumb {
-      position: absolute; top: 4px; width: 20px; height: 20px; border-radius: 50%;
-      background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); transition: left 0.25s;
-    }
-    .toggle-label { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; min-width: 22px; }
-    /* Discover button */
-    .discover-btn {
-      display: block; margin: 0 auto; padding: 18px 44px;
-      background: #2d1f0e; color: #f5efe6; border: none; border-radius: 8px;
-      font-family: 'Cormorant Garamond', serif; font-size: 1.3rem;
-      font-weight: 400; letter-spacing: 0.08em;
-      box-shadow: 0 4px 22px rgba(45,31,14,0.22); transition: all 0.2s;
-    }
-    .discover-btn:hover { background: #3d2a14; transform: translateY(-1px); box-shadow: 0 6px 28px rgba(45,31,14,0.28); }
-    /* ── Results ── */
-    .cards-row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; }
-    .name-card {
-      background: #faf6ef; border: 1.5px solid #d4c4a0; border-radius: 10px;
-      padding: 28px 22px 46px; text-align: center; position: relative;
-      flex: 1; min-width: 170px; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s;
-    }
-    .name-card.pop { transform: scale(1.04); box-shadow: 0 10px 36px rgba(92,74,42,0.16); }
-    .name-card:not(.pop) { transform: scale(1); box-shadow: 0 2px 10px rgba(92,74,42,0.07); }
-    .card-child-label {
-      font-family: 'DM Mono', monospace; font-size: 0.58rem;
-      letter-spacing: 0.2em; color: #8b7355; text-transform: uppercase; margin-bottom: 14px;
-    }
-    .card-name {
-      font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 4vw, 2.6rem);
-      font-weight: 300; color: #2d1f0e; letter-spacing: 0.04em; line-height: 1.1; margin-bottom: 5px;
-    }
-    .card-letters { font-family: 'DM Mono', monospace; font-size: 0.56rem; color: #b09070; letter-spacing: 0.1em; }
-    .card-skip {
-      position: absolute; top: 10px; right: 10px;
-      background: none; border: 1px solid #d4c4a0; border-radius: 50%;
-      width: 26px; height: 26px; color: #8b7355; font-size: 0.85rem;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s; line-height: 1; padding: 0;
-    }
-    .card-skip:hover { background: #f0e8d8; border-color: #b09070; }
-    .card-footer {
-      position: absolute; bottom: 11px; left: 13px; right: 13px;
-      display: flex; align-items: center; justify-content: space-between; gap: 6px;
-    }
-    .card-flags { display: flex; gap: 2px; flex-wrap: wrap; align-items: center; }
-    .card-flag { font-size: 0.95rem; line-height: 1; cursor: default; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1)); }
-    .universal-badge {
-      font-family: 'DM Mono', monospace; font-size: 0.48rem;
-      letter-spacing: 0.06em; color: #7a5c20;
-      background: linear-gradient(135deg,#f8efcc,#f0e0a8);
-      border: 1px solid #d4b060; border-radius: 20px;
-      padding: 2px 7px; white-space: nowrap; flex-shrink: 0;
-    }
-    /* Banners */
-    .banner-universal {
-      background: linear-gradient(135deg,#f8efcc,#f2e4b0); border: 1px solid #d4b060;
-      border-radius: 8px; padding: 11px 20px; text-align: center; margin-bottom: 24px;
-      font-family: 'DM Mono', monospace; font-size: 0.6rem; color: #7a5c20; letter-spacing: 0.1em;
-    }
-    .banner-noresult {
-      background: rgba(255,240,215,0.8); border: 1px solid #e8c07a;
-      border-radius: 8px; padding: 14px 20px; text-align: center; margin-bottom: 24px;
-      font-family: 'DM Mono', monospace; font-size: 0.6rem; color: #8b5e20; letter-spacing: 0.08em;
-    }
-    /* Skipped */
-    .skipped-box {
-      background: rgba(255,255,255,0.4); border-radius: 8px; padding: 14px 18px;
-      border: 1px solid rgba(212,196,160,0.4); margin-bottom: 24px;
-    }
-    .skipped-title { font-family: 'DM Mono', monospace; font-size: 0.52rem; letter-spacing: 0.15em; color: #8b7355; text-transform: uppercase; margin-bottom: 8px; }
-    .skipped-name { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: #a08060; text-decoration: line-through; opacity: 0.7; }
-    /* Controls */
-    .controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; }
-    .btn-primary {
-      padding: 14px 30px; background: #5c4a2a; color: #f5efe6;
-      border: none; border-radius: 6px;
-      font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;
-      letter-spacing: 0.05em; transition: all 0.2s;
-    }
-    .btn-primary:hover { background: #4a3a20; }
-    .btn-secondary {
-      padding: 14px 30px; background: transparent; color: #5c4a2a;
-      border: 1.5px solid #d4c4a0; border-radius: 6px;
-      font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;
-      letter-spacing: 0.05em; transition: all 0.2s;
-    }
-    .btn-secondary:hover { border-color: #5c4a2a; }
-    /* Legend */
-    .legend { text-align: center; font-family: 'DM Mono', monospace; font-size: 0.52rem; color: #a08060; letter-spacing: 0.09em; line-height: 2.2; }
-    @media (max-width: 480px) {
-      .name-card { min-width: 140px; }
-      .section { padding: 18px; }
-    }
-    /* Footer credit */
-    .footer {
-      text-align: center;
-      padding: 32px 0 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .footer-credit {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.52rem;
-      color: #a08060;
-      letter-spacing: 0.1em;
-    }
-    .footer-sources {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.5rem;
-      color: #b8a080;
-      letter-spacing: 0.08em;
-      line-height: 2;
-    }
-    .footer-sources a {
-      color: #8b6e42;
-      text-decoration: none;
-      border-bottom: 1px solid rgba(139,110,66,0.3);
-      transition: border-color 0.15s, color 0.15s;
-    }
-    .footer-sources a:hover {
-      color: #5c4a2a;
-      border-bottom-color: #5c4a2a;
+    @media (prefers-reduced-motion: reduce) {
+      .card.flip .flip-inner { transition: none; } .disc-spark { animation: none; }
+      .connector.pulse .conn-badge { animation: none; } .confetti-wrap { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="orb1"></div>
-  <div class="orb2"></div>
   <div id="root"></div>
 
-  <script>
-  // ─── NAME DATABASE ───────────────────────────────────────────────────────────
-  const NAME_DB = {
-    italy:   { label: "🇮🇹 Italy (ISTAT 2023)",    flag: "🇮🇹",
-      male:    ["Leonardo","Edoardo","Tommaso","Francesco","Alessandro","Mattia","Lorenzo","Gabriele","Riccardo","Andrea","Matteo","Luca","Marco","Davide","Filippo","Pietro","Giovanni","Giacomo","Nicolo","Stefano","Federico","Antonio","Emanuele","Simone","Roberto","Alberto","Raffaele","Diego","Samuele","Daniele","Cristian","Elia","Gioele","Ludovico","Damiano","Martino","Tobia","Agostino","Guglielmo","Carlo","Ciro","Brando","Flavio","Aldo","Enrico","Giulio","Ivan","Giorgio","Claudio","Massimo","Vincenzo","Salvatore","Bruno","Sergio","Angelo","Dario","Fabrizio","Gianluca","Mauro","Paolo","Piero","Renato","Romeo","Ruggero","Sandro","Silvio","Ugo","Valerio"],
-      female:  ["Sofia","Aurora","Ginevra","Vittoria","Giulia","Beatrice","Ludovica","Alice","Emma","Matilde","Anna","Chiara","Martina","Sara","Elisa","Elena","Francesca","Laura","Valentina","Alessia","Federica","Silvia","Camilla","Eleonora","Giorgia","Serena","Viola","Noemi","Mia","Gaia","Chloe","Arianna","Margherita","Azzurra","Rachele","Rebecca","Irene","Letizia","Nina","Zoe","Flavia","Cristina","Rossella","Alessandra","Angela","Barbara","Cecilia","Daniela","Eva","Gemma","Ilaria","Jessica","Katia","Lisa","Monica","Nadia","Ornella","Patrizia","Roberta","Sabrina","Tiziana","Ursula","Valeria","Viviana","Wanda","Lucia"],
-      neutral: ["Andrea","Luca","Alex","Nico","Remy","Robin","Sam","Sasha","Morgan","Ariel","Noel","Jean","Rene"] },
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
-    spain:   { label: "🇪🇸 Spain (INE 2023)",      flag: "🇪🇸",
-      male:    ["Lucas","Mateo","Hugo","Martin","Daniel","Pablo","Alejandro","Adrian","David","Marcos","Miguel","Alvaro","Diego","Carlos","Sergio","Javier","Antonio","Manuel","Jesus","Francisco","Jose","Pedro","Juan","Oscar","Ruben","Raul","Hector","Ivan","Roberto","Rodrigo","Gonzalo","Alberto","Rafael","Agustin","Andres","Borja","Cristobal","Eduardo","Fernando","Guillermo","Jaime","Joaquin","Leonardo","Luis","Nacho","Nicolas","Oliver","Salvador","Teodoro","Valentin","Victor","Xavier","Yago","Ignacio","Lorenzo","Mario","Tomas","Ramon","Simon","Emilio","Felipe","German","Isidro"],
-      female:  ["Lucia","Sofia","Maria","Martina","Paula","Valentina","Julia","Emma","Daniela","Sara","Carla","Alba","Noa","Claudia","Andrea","Elena","Isabel","Laura","Ana","Carmen","Cristina","Marta","Beatriz","Rocio","Lola","Teresa","Pilar","Rosa","Natalia","Patricia","Silvia","Alicia","Raquel","Miriam","Irene","Clara","Lidia","Nuria","Alejandra","Ainhoa","Esther","Lorena","Yolanda","Veronica","Aitana","Celia","Ines","Laia","Amelia","Blanca","Constanza","Diana","Florencia","Gloria","Helena","Jimena","Katia","Leonor","Marisol","Nadia","Olga","Penelope"],
-      neutral: ["Alex","Nico","Andrea","Remi","Sasha","Morgan","Robin","Noel","Rene","Ariel","Sam","Jordan","Cam"] },
-
-    usa:     { label: "🇺🇸 USA (SSA 2023)",         flag: "🇺🇸",
-      male:    ["Liam","Noah","Oliver","James","Elijah","Mateo","Theodore","Henry","Lucas","William","Benjamin","Aiden","Sebastian","Jack","Ezra","Owen","Leo","Mason","Ethan","Logan","Carter","Levi","Jackson","Julian","Hudson","Grayson","Wyatt","Gabriel","Lincoln","Josiah","Eli","Jaxon","Xavier","Caleb","Asher","Ryan","Nathan","Adrian","Miles","Easton","Jace","Evan","Cole","Cooper","Nolan","Landon","Jeremiah","Axel","Aaron","Austin","Charles","Dominic","Dylan","Emmett","Felix","Gavin","Grant","Greyson","Harrison","Hunter","Ian","Isaiah","Jasper","Jordan","Kyle","Luke","Max","Nicholas","Oscar","Parker","Quinn","Reid","Sawyer","Silas","Tyler","Victor","Zane"],
-      female:  ["Olivia","Emma","Charlotte","Amelia","Sophia","Mia","Isabella","Ava","Evelyn","Luna","Harper","Camila","Sofia","Eleanor","Elizabeth","Violet","Scarlett","Emily","Hazel","Lily","Gianna","Aurora","Penelope","Riley","Zoey","Nora","Hannah","Layla","Brooklyn","Natalie","Zoe","Leah","Savannah","Audrey","Bella","Maya","Valentina","Claire","Stella","Ellie","Samantha","Maria","Victoria","Willow","Kinsley","Naomi","Paisley","Nyla","Caroline","Genesis","Aaliyah","Kennedy","Sadie","Autumn","Hailey","Eliana","Ivy","Ariana","Arianna","Delilah","Jade","Kylie","Leilani","Lillian","Lucy","Mackenzie","Madelyn","Natalia","Peyton","Serenity","Skylar","Vivienne"],
-      neutral: ["Jordan","Riley","Quinn","Morgan","Avery","Peyton","Reese","Finley","Rowan","Sage","River","Skyler","Emerson","Phoenix","Hayden","Jessie","Casey","Jamie","Taylor","Cameron","Bailey","Drew","Blake","Charlie","Dakota","Ellis","Frankie","Harley","Jesse","Kendall","Lee","Lynn","Micah","Parker","Reagan","Remy","Robin","Ryan","Sam","Shannon","Shawn","Sidney","Spencer","Tatum","Terry","Tracy","Tyler","Whitney","Alex","Alexis"] },
-
-    uk:      { label: "🇬🇧 UK (ONS 2023)",          flag: "🇬🇧",
-      male:    ["Noah","Oliver","George","Arthur","Muhammad","Leo","Harry","Oscar","Archie","Henry","Theodore","Freddie","Alfie","Charlie","Theo","Finley","Reuben","Ezra","Tommy","Elijah","Jack","Luca","Ethan","William","Hugo","Jude","Thomas","Arlo","Liam","Mason","Adam","Alexander","Dylan","Felix","Finn","Frankie","Hamza","Harrison","Hudson","Ibrahim","Isaac","Jacob","Jamie","Jasper","Jensen","Joshua","Kai","Louie","Luke","Marcus","Max","Monty","Remy","Rory","Rupert","Ryan","Samuel","Sebastian","Seth","Stanley","Tobias","Victor","Xavier","Zach","Caleb","Cole","Daniel","Elliot","Evan","Gabriel","Grayson"],
-      female:  ["Olivia","Amelia","Isla","Ava","Ivy","Freya","Lily","Florence","Mia","Willow","Isabella","Sophia","Poppy","Daisy","Aurora","Grace","Sienna","Elsie","Violet","Rosie","Ella","Alice","Arabella","Aria","Bonnie","Chloe","Darcy","Eliza","Ellie","Eva","Evelyn","Evie","Felicity","Georgia","Gracie","Hannah","Harriet","Imogen","Iris","Jasmine","Jessica","Layla","Lola","Lucy","Luna","Maisie","Maya","Megan","Millie","Molly","Niamh","Nora","Phoebe","Remi","Rose","Ruby","Scarlett","Sophie","Stella","Summer","Thea","Zara","Zoe","Abigail","Amber","Beatrice","Clara","Claudia","Eleanor","Elizabeth","Emma","Faith","Holly"],
-      neutral: ["Remi","Rowan","Kai","Finley","Morgan","Robin","River","Sage","Ash","Blair","Brett","Cameron","Casey","Chris","Drew","Ellis","Emery","Frankie","Hayden","Indigo","Jax","Jesse","Jude","Kit","Lake","Lark","Lee","Logan","Luca","Marlow","Max","Milan","Nico","Ocean","Parker","Quinn","Reed","Ren","Riley","Robin","Ryan","Sam","Scout","Sky","Sloane","Sol","Stone","Storm","Sully","Sunny","Tate","Waverly","Winter","Wren","Zephyr"] },
-
-    france:  { label: "🇫🇷 France (INSEE 2023)",    flag: "🇫🇷",
-      male:    ["Gabriel","Leo","Raphael","Louis","Arthur","Lucas","Adam","Hugo","Nathan","Theo","Mathis","Enzo","Tom","Alexis","Clement","Baptiste","Maxime","Nicolas","Pierre","Thomas","Antoine","Julien","Victor","Noe","Mathieu","Romain","Tristan","Valentin","Simon","Benoit","Charles","Cyril","Damien","Edouard","Florian","Guillaume","Kevin","Laurent","Loic","Luc","Mael","Mehdi","Mickael","Quentin","Remi","Samuel","Sebastien","Stephane","Thibault","Yann","Zacharie","Alexandre","Antonin","Arnaud","Axel","Benjamin","Cedric","Corentin"],
-      female:  ["Emma","Jade","Louise","Alice","Chloe","Ines","Lea","Manon","Lucie","Camille","Sarah","Lola","Zoe","Lena","Pauline","Clara","Juliette","Margot","Laura","Marie","Ambre","Amelia","Anais","Charlotte","Elisa","Elise","Eloise","Eva","Gaelle","Heloise","Jeanne","Josephine","Justine","Laurie","Laure","Lisa","Maeva","Maelys","Margaux","Marion","Mathilde","Maud","Melanie","Morgane","Nadia","Nathalie","Noemie","Oceane","Olivia","Ophelie","Romane","Rose","Roxane","Sabrina","Salome","Sandy","Soline","Stephanie","Tina","Yasmine","Lucia"],
-      neutral: ["Camille","Claude","Dominique","Maxime","Morgan","Noel","Rene","Robin","Sam","Sacha","Alex","Alexis","Charlie","Dany","Jules","Kim","Luc","Nico","Pat","Remy","Sandy","Sasha","Val","Yann"] },
-
-    germany: { label: "🇩🇪 Germany (GfdS 2023)", flag: "🇩🇪",
-      male:    ["Noah","Matteo","Leon","Elias","Paul","Ben","Jonas","Finn","Felix","Luca","Luis","Julian","Maximilian","Lukas","Johannes","Alexander","Niklas","Jan","David","Tobias","Sebastian","Tim","Dominic","Moritz","Fabian","Simon","Stefan","Christian","Marcel","Daniel","Patrick","Michael","Philipp","Andreas","Klaus","Thomas","Wolfgang","Gunter","Heinz","Werner","Rudolf","Horst","Frank","Bernd","Herbert","Dieter","Karl","Hans","Fritz","Otto","Ernst","Wilhelm","Friedrich","Heinrich","Bernhard","Leopold","Konrad","Gottfried","Alfred","Egon","Erwin","Gerhard","Harald","Hartmut","Helmut","Hermann","Hugo"],
-      female:  ["Emilia","Mia","Sophia","Emma","Hannah","Mila","Lina","Lena","Leonie","Anna","Maria","Laura","Lea","Julia","Nina","Jana","Nele","Lisa","Marie","Sarah","Sophie","Stefanie","Sabine","Claudia","Sandra","Andrea","Petra","Monika","Martina","Christina","Katrin","Karin","Brigitte","Renate","Ursula","Ingrid","Christa","Gisela","Gerda","Hildegard","Helga","Ilse","Lieselotte","Liesel","Luise","Margarete","Mathilde","Rosemarie","Waltraud","Elfriede","Frieda","Hedwig","Klara","Lotte","Lucie","Magdalena","Marlene","Marta","Ruth","Thea"],
-      neutral: ["Alex","Kim","Nico","Robin","Sasha","Sam","Chris","Kai","Jean","Morgan","Quinn","Riley","Taylor","Jordan","Casey","Charlie","Dana","Drew","Emery","Frankie","Hayden","Jesse","Lee","Leslie","Lynn","Parker","Pat","Remy","Rene","Sandy","Skylar","Sky","Sol","Sunny","Toni","Val","Wren","Yuki"] },
-
-    sweden:  { label: "🇸🇪 Sweden (SCB 2023)",       flag: "🇸🇪",
-      male:    ["William","Lucas","Liam","Noah","Oliver","Elias","Oscar","Hugo","Axel","Elliot","Alexander","Erik","Emil","Adam","Isak","Filip","Noel","Viktor","Edvin","Albin","Felix","Anton","Gustav","Arvid","Pontus","Rasmus","Simon","Marcus","Mattias","Johan","Anders","Bjorn","Carl","Claes","David","Fredrik","Goran","Gunnar","Hans","Henrik","Joakim","Jonas","Karl","Lars","Lennart","Magnus","Martin","Michael","Mikael","Nils","Patrik","Per","Peter","Robert","Rolf","Sven","Thomas","Tobias","Tommy","Ulf","Urban","Walter","Waldemar"],
-      female:  ["Alice","Maja","Ella","Elsa","Astrid","Wilma","Julia","Alma","Stella","Linnea","Klara","Ebba","Freja","Ida","Elin","Sofia","Emma","Sara","Agnes","Nora","Hanna","Emilia","Saga","Lina","Olivia","Vera","Signe","Ines","Sigrid","Tuva","Solveig","Matilda","Frida","Karin","Malin","Anna","Annika","Birgitta","Christina","Eva","Gunilla","Inga","Ingrid","Kristina","Lena","Lotta","Margareta","Maria","Marie","Monika","Petra","Pia","Ulrika","Susanna","Therese","Tina","Ulla","Yvonne","Lucia"],
-      neutral: ["Elliot","Kim","Robin","Sasha","Saga","Alex","Nico","Morgan","Sam","Charlie","Emre","Erin","Frankie","Hayden","Jesse","Jordan","Kai","Lee","Logan","Milan","Noel","Parker","Quinn","Reed","Remy","Riley","River","Ryan","Sandy","Scout","Skye","Sol","Sonny","Storm","Sunny","Tate","Val","Wren","Yuki","Zephyr"] },
-
-    canada:  { label: "🇨🇦 Canada (StatCan 2023)",   flag: "🇨🇦",
-      male:    ["Liam","Noah","Oliver","Benjamin","Elijah","Lucas","William","Henry","Jack","James","Theodore","Leo","Owen","Ethan","Logan","Sebastian","Aiden","Jayden","Carter","Mason","Hudson","Ezra","Wyatt","Grayson","Gabriel","Asher","Julian","Luca","Mateo","Maverick","Finn","Zach","Nolan","Declan","Emmett","Gavin","Beau","Chase","Dallas","Dax","Dillon","Easton","Eli","Elliot","Evan","Flynn","Grant","Greyson","Harley","Heath","Hunter","Jackson","Jake","Jasper","Jaxon","Jensen","Jude","Justin","Kai","Kieran","Lane","Lennon","Lincoln","Luke","Marshall","Max","Miles","Milo","Nate","Nico","Orion"],
-      female:  ["Olivia","Emma","Charlotte","Amelia","Sophia","Mia","Ava","Isabella","Evelyn","Harper","Lily","Luna","Ella","Scarlett","Abigail","Chloe","Zoey","Penelope","Grace","Victoria","Eleanor","Nora","Layla","Hazel","Violet","Aurora","Claire","Ellie","Stella","Natalie","Zoe","Eva","Maya","Camila","Riley","Hannah","Avery","Sofia","Aria","Alexa","Alyssa","Anna","Bella","Brooke","Delaney","Diana","Eden","Elena","Eliana","Emily","Fiona","Freya","Gianna","Hailey","Haven","Isla","Ivy","Jade","Juliet","Juliette","June","Kate","Kayla","Kendall","Kylie","Laila","Lila","Lucy","Mackenzie","Madison","Maisie","Margaret"],
-      neutral: ["Quinn","Riley","Morgan","Avery","Peyton","Finley","Rowan","Sage","River","Skyler","Emerson","Phoenix","Hayden","Cameron","Bailey","Drew","Blake","Charlie","Dakota","Ellis","Frankie","Harley","Jesse","Kendall","Lee","Logan","Marlow","Max","Micah","Nico","Parker","Reagan","Remy","Robin","Ryan","Sam","Sidney","Spencer","Tatum","Taylor","Tyler","Wren","Alex","Ash","Blair","Brett","Casey","Chris","Dani","Eddie","Evan","Fran","Gale","Hollis","Indy","Jay","Jules","Kai","Kit","Lake","Lark"] },
-
-    ireland: { label: "🇮🇪 Ireland (CSO 2023)",     flag: "🇮🇪",
-      male:    ["Jack","Noah","James","Rian","Oisín","Fionn","Tadhg","Liam","Cillian","Finn","Charlie","Conor","Seán","Patrick","John","Caelan","Jude","Oliver","Darragh","Harry","Cathal","Eoin","Oscar","Tommy","Cormac","Donnacha","Michael","Aaron","Ryan","Daniel","Luke","Ben","Dylan","Shane","Ronan","Theo","Callum","Ruairí","Colm","Brendan","Diarmuid","Lorcan","Naoise","Hugh","Rory","Leo","Max","Jamie","Adam","Evan","Eoghan","Ciarán","David","Pádraig","Donal"],
-      female:  ["Grace","Fiadh","Emily","Sophie","Lily","Ellie","Éabha","Caoimhe","Saoirse","Aoife","Róisín","Sadhbh","Erin","Annie","Niamh","Síofra","Lucia","Emma","Mia","Anna","Hannah","Olivia","Chloe","Charlotte","Amy","Sorcha","Sinéad","Ciara","Clodagh","Dearbhla","Eimear","Meabh","Muireann","Sienna","Sarah","Tara","Clara","Alice","Zoe","Leah","Orla","Nora","Maeve","Aisling","Imogen","Isla","Rose","Kate","Eva","Sofia","Ella","Abbie","Aoibhinn","Clíodhna","Fionnuala"],
-      neutral: ["Alex","Charlie","Erin","Riley","Rory","Jamie","Morgan","Avery","Blake","Jordan","Sam","Casey","Quinn","Robin","Ash","Finley","Harley","Fia"] },
-
-    brazil:  { label: "🇧🇷 Brazil (IBGE)",           flag: "🇧🇷",
-      male:    ["Miguel","Arthur","Heitor","Davi","Lorenzo","Enzo","Gabriel","Guilherme","Matheus","Lucas","Nicolas","Samuel","Pedro","Bernardo","Victor","Caio","Rafael","Felipe","João","Leonardo","Diego","André","Bruno","Marcelo","Eduardo","Rodrigo","José","Francisco","Carlos","Paulo","Luiz","Marcos","Thiago","Vinícius","Gustavo","Ricardo","Fernando","Leandro","Alexandre","Roberto","Luciano","Renato","Fábio","Tiago","Igor","Otávio","Henrique","Emanuel","Murilo","Cauã","Ítalo","Giovani","Ravi","Théo","Bento"],
-      female:  ["Alice","Sophia","Helena","Valentina","Laura","Isabella","Manuela","Júlia","Heloísa","Luísa","Lívia","Beatriz","Sofia","Giovanna","Clara","Fernanda","Camila","Larissa","Letícia","Natália","Gabriela","Rafaela","Vitória","Bruna","Amanda","Juliana","Mariana","Caroline","Aline","Maria","Ana","Francisca","Adriana","Patrícia","Sandra","Lara","Elisa","Rebeca","Isabela","Milena","Yasmin","Nathalia","Viviane","Raquel","Renata","Simone","Fabiana","Priscila","Vanessa","Luciana","Antônia","Eduarda","Lívia","Melissa","Cecília"],
-      neutral: ["Alex","Ariel","Jordan","Robin","Sam","Noel","Morgan","Dani","Nico","Kim"] },
-
-    netherlands: { label: "🇳🇱 Netherlands (SVB 2025)", flag: "🇳🇱",
-      male:    ["Noah","Liam","Luca","Sem","Mees","James","Lucas","Sam","Finn","Levi","Noud","Adam","Milan","Daan","Mats","Mason","Luuk","Guus","Bram","Olivier","Otis","Siem","Floris","Oliver","Teun","Tobias","Gijs","Morris","Benjamin","Moos","Elias","Owen","Boaz","Thomas","Joep","Julian","Jesse","Kai","Abel","Max","Hugo","Jens","Lio","Ted","Ties","Milo","David","Jan","Jake","Jack","Jip","Dean","Fedde","Jurre","Nolan","Willem","Samuel","Lars","Thijs","Tijn"],
-      female:  ["Noor","Olivia","Nora","Julia","Mila","Sophie","Emma","Yara","Milou","Sara","Nina","Luna","Sofia","Tess","Lily","Zoë","Julie","Maeve","Saar","Mia","Anna","Lotte","Eva","Emily","Evi","Elin","Liv","Sarah","Lina","Maud","Sofie","Lieke","Lynn","Loïs","Nova","Isa","Livia","Lauren","Ella","Sophia","Romée","Noa","Fenna","Hannah","Ayla","Roos","Rosa","Yuna","Maya","Elena","Fleur","Jasmijn","Fien","Lara","Rosie","Isabella","June","Maria","Vera","Floor"],
-      neutral: ["Robin","Charlie","Riley","Sky","Sasha","River","Beau","Rune","Lou","Teddy","Kaya","Marijn","Eden","Marley","Quinn","Sam","Mika","Jamie","Dani","Alex","Bo","Billie","Indy","Jules","Lux"] }
-  };
-
-  // ─── HELPERS ───────────────────────────────────────────────────────────────
-  function norm(name) {
-    return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  }
-  function getNamesOfLength(country, gender, length) {
-    const db = NAME_DB[country]; if (!db) return [];
-    const pool = gender === "neutral" ? db.neutral : gender === "male" ? db.male : db.female;
-    return pool.filter(n => norm(n).length === length);
-  }
-  function buildPool(countries, gender, length, universalOnly) {
-    if (!countries.length) return [];
-    const map = {};
-    for (const c of countries) {
-      for (const name of getNamesOfLength(c, gender, length)) {
-        const key = norm(name);
-        if (!map[key]) map[key] = { display: name, countries: [] };
-        if (!map[key].countries.includes(c)) map[key].countries.push(c);
-      }
-    }
-    let entries = Object.values(map);
-    if (universalOnly && countries.length > 1)
-      entries = entries.filter(e => e.countries.length === countries.length);
-    return entries.sort(() => Math.random() - 0.5);
-  }
-  function pickEntry(pool, excluded) {
-    return pool.find(e => !excluded.has(norm(e.display))) || null;
-  }
-
-  // ─── STATE ─────────────────────────────────────────────────────────────────
-  const state = {
-    step: "config",            // "config" | "results"
-    isTriplet: false,
-    genders: ["female","male","neutral"],
-    nameLength: 5,
-    selectedCountries: ["italy","spain","usa"],
-    universalOnly: false,
-    pools: [[],[],[]],
-    excluded: [new Set(), new Set(), new Set()],
-    entries: [null, null, null],
-    noResults: [false, false, false],
-  };
-
-  function setState(patch) { Object.assign(state, patch); render(); }
-
-  // ─── RENDER ────────────────────────────────────────────────────────────────
-  const CHILD_LABELS = ["First Child","Second Child","Third Child"];
-  const countryKeys  = Object.keys(NAME_DB);
-
-  function el(tag, attrs, ...children) {
-    const node = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs || {})) {
-      if (k === "class") node.className = v;
-      else if (k.startsWith("on")) node.addEventListener(k.slice(2).toLowerCase(), v);
-      else if (k === "title") node.title = v;
-      else node.setAttribute(k, v);
-    }
-    for (const child of children.flat()) {
-      if (child == null) continue;
-      node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
-    }
-    return node;
-  }
-  function text(s) { return document.createTextNode(s); }
-
-  // ── Choice button ──
-  function choiceBtn(label, active, onClick) {
-    return el("button", { class: "choice-btn " + (active ? "active" : "inactive"), onCLICK: onClick }, label);
-  }
-
-  // ── Gender block ──
-  function genderBlock(idx, label) {
-    const opts = [
-      { id: "male", icon: "♂", lbl: "Boy" },
-      { id: "female", icon: "♀", lbl: "Girl" },
-      { id: "neutral", icon: "◇", lbl: "Neutral" },
-    ];
-    const current = state.genders[idx];
-    return el("div", { class: "gender-block" },
-      el("p", { class: "gender-block-label" }, label),
-      el("div", { class: "gender-opts" },
-        ...opts.map(o => el("button", {
-          class: "gender-opt " + (current === o.id ? "active" : "inactive"),
-          onCLICK: () => {
-            const g = [...state.genders]; g[idx] = o.id; setState({ genders: g });
-          }
-        }, el("span", { class: "icon" }, o.icon), o.lbl))
-      )
-    );
-  }
-
-  // ── Toggle switch ──
-  function toggleSwitch(value, disabled, onChange, label, sublabel) {
-    const track = el("button", {
-      class: "toggle-track",
-      style: `background:${value && !disabled ? "#5c4a2a" : "#d4c4a0"};cursor:${disabled ? "not-allowed" : "pointer"}`,
-      onCLICK: () => { if (!disabled) onChange(!value); }
-    }, el("span", { class: "toggle-thumb", style: `left:${value && !disabled ? "26px" : "4px"}` }));
-    const lbl = el("span", { class: "toggle-label", style: `color:${value && !disabled ? "#5c4a2a" : "#a08060"}` }, value && !disabled ? "ON" : "OFF");
-    const textDiv = el("div", { class: "toggle-text" },
-      el("p", { class: "toggle-title" }, label),
-      el("p", { class: "toggle-sub" }, sublabel)
-    );
-    return el("div", { class: "toggle-row" + (disabled ? " disabled" : "") }, textDiv, track, lbl);
-  }
-
-  // ── Name card ──
-  function nameCard(idx, allCountries) {
-    const entry = state.noResults[idx] ? null : state.entries[idx];
-    const name  = entry ? entry.display : null;
-    const nameCountries = entry ? entry.countries : [];
-    const isUniversal = entry && allCountries.length > 1 && nameCountries.length === allCountries.length;
-
-    const card = el("div", { class: "name-card" },
-      el("p", { class: "card-child-label" }, CHILD_LABELS[idx]),
-      el("p", { class: "card-name" }, name || "—"),
-      name ? el("p", { class: "card-letters" }, norm(name).length + " letters") : null,
-      name ? el("button", {
-        class: "card-skip", title: "Skip this name",
-        onCLICK: () => excludeAndReplace(idx)
-      }, "×") : null,
-      name ? el("div", { class: "card-footer" },
-        el("div", { class: "card-flags" },
-          ...nameCountries.map(c => el("span", { class: "card-flag", title: NAME_DB[c].label }, NAME_DB[c].flag))
-        ),
-        isUniversal ? el("span", { class: "universal-badge", title: "Found in all selected databases" }, "✦ universal") : null
-      ) : null
-    );
-
-    // pop animation
-    card.classList.add("pop");
-    setTimeout(() => card.classList.remove("pop"), 400);
-    return card;
-  }
-
-  // ── Config screen ──
-  function renderConfig() {
-    const count = state.isTriplet ? 3 : 2;
-    const universalDisabled = state.selectedCountries.length < 2;
-
-    return el("div", {},
-      // Twins / Triplets
-      el("div", { class: "section" },
-        el("p", { class: "section-label" }, "How many children?"),
-        el("div", { class: "btn-row" },
-          choiceBtn("Twins",    !state.isTriplet, () => setState({ isTriplet: false })),
-          choiceBtn("Triplets",  state.isTriplet, () => setState({ isTriplet: true  }))
-        )
-      ),
-      // Gender
-      el("div", { class: "section" },
-        el("p", { class: "section-label" }, "Gender for each child"),
-        el("div", { class: "gender-grid" },
-          ...[0,1,2].slice(0, count).map(i => genderBlock(i, CHILD_LABELS[i]))
-        )
-      ),
-      // Length
-      el("div", { class: "section" },
-        el("p", { class: "section-label" }, "Name length: " + state.nameLength + " letters"),
-        el("div", { class: "btn-row", style: "flex-wrap:wrap" },
-          ...[3,4,5,6,7,8,9,10].map(l =>
-            el("button", {
-              class: "length-btn " + (state.nameLength === l ? "active" : "inactive"),
-              onCLICK: () => setState({ nameLength: l })
-            }, String(l))
-          )
-        )
-      ),
-      // Countries + Universal
-      el("div", { class: "section" },
-        el("p", { class: "section-label" }, "Name databases"),
-        el("div", { class: "btn-row", style: "margin-bottom:22px;flex-wrap:wrap" },
-          ...countryKeys.map(c =>
-            el("button", {
-              class: "country-btn " + (state.selectedCountries.includes(c) ? "active" : "inactive"),
-              onCLICK: () => {
-                const sel = state.selectedCountries;
-                setState({ selectedCountries: sel.includes(c)
-                  ? (sel.length > 1 ? sel.filter(x => x !== c) : sel)
-                  : [...sel, c]
-                });
-              }
-            }, NAME_DB[c].label)
-          )
-        ),
-        el("div", { class: "divider" },
-          toggleSwitch(
-            state.universalOnly,
-            universalDisabled,
-            v => setState({ universalOnly: v }),
-            "Universal names only",
-            universalDisabled
-              ? "Select 2+ countries to enable this filter"
-              : "Only names present in all " + state.selectedCountries.length + " selected databases"
-          )
-        )
-      ),
-      // Discover button
-      el("button", { class: "discover-btn", onCLICK: generateResults }, "Discover Names →"),
-      // Footer
-      renderFooter()
-    );
-  }
-
-  // ── Results screen ──
-  function renderResults() {
-    const count = state.isTriplet ? 3 : 2;
-    const indices = [0,1,2].slice(0, count);
-    const anyNoResult = state.noResults.some((v, i) => i < count && v);
-    const anyExcluded = indices.some(i => state.excluded[i].size > 0);
-
-    const children = [];
-
-    // Universal banner
-    if (state.universalOnly) {
-      children.push(el("div", { class: "banner-universal" },
-        "✦ Universal mode · only names shared across all " + state.selectedCountries.length + " selected databases"
-      ));
-    }
-
-    // Cards
-    children.push(el("div", { class: "cards-row" },
-      ...indices.map(i => nameCard(i, state.selectedCountries))
-    ));
-
-    // No result banner
-    if (anyNoResult) {
-      children.push(el("div", { class: "banner-noresult" },
-        "No " + state.nameLength + "-letter names found" +
-        (state.universalOnly ? " in all selected databases" : "") +
-        ". Try a different length" + (state.universalOnly ? " or turn off Universal mode" : "") + "."
-      ));
-    }
-
-    // Skipped names
-    if (anyExcluded) {
-      const skippedItems = indices.flatMap(i =>
-        Array.from(state.excluded[i]).map(n => el("span", { class: "skipped-name" }, n))
-      );
-      children.push(el("div", { class: "skipped-box" },
-        el("p", { class: "skipped-title" }, "Skipped"),
-        el("div", { style: "display:flex;gap:8px;flex-wrap:wrap" }, ...skippedItems)
-      ));
-    }
-
-    // Controls
-    children.push(el("div", { class: "controls" },
-      el("button", { class: "btn-primary", onCLICK: refreshAll }, "↻ New set"),
-      el("button", { class: "btn-secondary", onCLICK: () => setState({ step: "config" }) }, "← Change settings")
-    ));
-
-    // Legend
-    children.push(el("div", { class: "legend" },
-      state.selectedCountries.map(c => NAME_DB[c].flag + " " + NAME_DB[c].label).join("  ·  ")
-    ));
-
-    // Footer
-    children.push(renderFooter());
-
-    return el("div", {}, ...children);
-  }
-
-  // ── Shared footer ──
-  function renderFooter() {
-    const sources = [
-      { label: "ISTAT",   href: "https://www.istat.it/dati/calcolatori/contanomi/" },
-      { label: "INE",     href: "https://www.ine.es/dyngs/INEbase/operacion.htm?c=Estadistica_C&cid=1254736177009&menu=ultiDatos&idp=1254735572981" },
-      { label: "SSA",     href: "https://www.ssa.gov/oact/babynames/" },
-      { label: "ONS",     href: "https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/livebirths/bulletins/babynamesenglandandwales/2023" },
-      { label: "INSEE",   href: "https://www.insee.fr/fr/statistiques/8205628" },
-      { label: "GfdS",    href: "https://gfds.de/vornamen/beliebteste-vornamen/" },
-      { label: "SCB",     href: "https://www.scb.se/hitta-statistik/statistik-efter-amne/befolkning-och-levnadsforhallanden/ovrigt/namnstatistik/" },
-      { label: "StatCan", href: "https://www.statcan.gc.ca/en/subjects-start/population_and_demography" },
-      { label: "CSO",     href: "https://www.cso.ie/en/statistics/birthsdeathsandmarriages/irishbabiesnames/" },
-      { label: "IBGE",    href: "https://censo2022.ibge.gov.br/nomes" },
-      { label: "SVB",     href: "https://www.svb.nl/nl/kindernamen/" },
-    ];
-
-    const sourceLinks = [];
-    sources.forEach((s, i) => {
-      sourceLinks.push(el("a", { href: s.href, target: "_blank", rel: "noopener noreferrer" }, s.label));
-      if (i < sources.length - 1) sourceLinks.push(document.createTextNode(" · "));
-    });
-
-    return el("footer", { class: "footer" },
-      el("p", { class: "footer-credit" },
-        "Conceived by teowaits for L\u0026E · ",
-        el("a", { href: "https://github.com/teowaits/TwinName", target: "_blank", rel: "noopener noreferrer",
-          style: "color:#8b6e42;text-decoration:none;border-bottom:1px solid rgba(139,110,66,0.3);" },
-          "TwinName on GitHub"
-        ),
-        " · MIT License"
-      ),
-      el("p", { class: "footer-sources" }, ...sourceLinks)
-    );
-  }
-
-  // ─── ACTIONS ───────────────────────────────────────────────────────────────
-  function generateResults() {
-    const count = state.isTriplet ? 3 : 2;
-    const pools = [], entries = [], excluded = [], noResults = [];
-    for (let i = 0; i < count; i++) {
-      const p = buildPool(state.selectedCountries, state.genders[i], state.nameLength, state.universalOnly);
-      const ex = new Set();
-      pools.push(p); entries.push(pickEntry(p, ex)); excluded.push(ex); noResults.push(!pickEntry(p, ex));
-    }
-    // fix: noResults should check if entry is null
-    const fixedNoResults = entries.map(e => !e);
-    setState({ step: "results", pools, entries, excluded, noResults: fixedNoResults });
-  }
-
-  function excludeAndReplace(idx) {
-    const newExcluded = state.excluded.map((s, i) => {
-      if (i !== idx) return s;
-      const ns = new Set(s);
-      if (state.entries[i]) ns.add(norm(state.entries[i].display));
-      return ns;
-    });
-    const newEntry = pickEntry(state.pools[idx], newExcluded[idx]);
-    const newEntries  = state.entries.map((e, i) => i === idx ? newEntry : e);
-    const newNoResults = state.noResults.map((nr, i) => i === idx ? !newEntry : nr);
-    setState({ excluded: newExcluded, entries: newEntries, noResults: newNoResults });
-  }
-
-  function refreshAll() {
-    const count = state.isTriplet ? 3 : 2;
-    const newPools = [], newEntries = [], newExcluded = [], newNoResults = [];
-    for (let i = 0; i < count; i++) {
-      const p = buildPool(state.selectedCountries, state.genders[i], state.nameLength, state.universalOnly);
-      const ex = new Set();
-      newPools.push(p); newEntries.push(pickEntry(p, ex)); newExcluded.push(ex); newNoResults.push(!pickEntry(p, ex));
-    }
-    const fixedNoResults = newEntries.map(e => !e);
-    setState({ pools: newPools, entries: newEntries, excluded: newExcluded, noResults: fixedNoResults });
-  }
-
-  // ─── MAIN RENDER ───────────────────────────────────────────────────────────
-  function render() {
-    const root = document.getElementById("root");
-    root.innerHTML = "";
-
-    const container = el("div", { class: "container" },
-      // Header
-      el("div", { class: "header" },
-        el("p", { class: "header-eyebrow" }, "Double trouble? Name it!"),
-        el("h1", { class: "header-title" }, "Twin & Triplet\u00A0", el("em", {}, "Names")),
-        el("p", { class: "header-sources" }, "Sources: ISTAT · INE · SSA · ONS · INSEE · GfdS · SCB · StatCan · CSO · IBGE · SVB")
-      ),
-      state.step === "config" ? renderConfig() : renderResults()
-    );
-    root.appendChild(container);
-  }
-
-  // Boot
-  render();
-  </script>
+  <script src="names-data.js"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="app.jsx"></script>
 </body>
 </html>

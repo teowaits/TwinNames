@@ -1,26 +1,44 @@
 # TwinNames
 👶👶 Twin & Triplet naming website
 
-**vibed coded with Claude (Sonnet 4.6) from an old idea.** 
+**Conceived by teowaits for L&E.**
+**Original version** vibe-coded with Claude Sonnet 4.6.
+**Redesign** designed by teowaits, executed by Claude Sonnet & Opus.
 
 App for discovering matching names for twins and triplets — filtered by gender, character length, and country of origin, drawing from official national statistics databases across 11 countries.
+
 Live demo → https://teowaits.github.io/TwinNames/
+
+---
+
+## How it works
+
+👶 &nbsp; Choose **twins** or **triplets**
+♀ ♂ ◇ &nbsp; Set a **gender** for each child independently
+📏 &nbsp; Pick a shared **name length** (3–10 letters)
+🌍 &nbsp; Toggle the **countries** to search (tap a flag to include/exclude it)
+✦ &nbsp; Hit **discover** — then **lock** names you love, **reroll** the rest, and **save** favourite pairings
+
+---
 
 ## Features
 
-**Twins or triplets** — choose between 2 or 3 children
-**Gender per child** — set Boy, Girl, or Gender-Neutral independently for each
-**Name length filter** — match names by exact letter count (3–10), so your twins can share the same rhythm
-**11 official databases** — toggle any combination of countries to search across
-**Universal mode** — optionally restrict results to names that appear in all selected databases simultaneously (e.g. "Lucia" appears in Italy, Spain, Sweden and France)
-**Country flags on every card** — instantly see which databases contain each suggested name
-**✦ Universal badge** — cards are tagged when a name is truly cross-cultural
-**Skip names you dislike** — the × button excludes a name and auto-picks the next one from the pool
-**Skipped name log** — a running list of everything you've passed on
+**Two-of-a-Kind cards** — names are revealed with a card-flip animation; an ampersand ( & ) links each pair or trio
+**Lock & reroll** — 🔒 pin a name you love and reroll only the other card(s) with 🎲
+**Shortlist** — ♥ save any pairing you want to revisit; tappable chips at the bottom of the screen
+**Share card** — ⤴ opens a clean, screenshot-ready card showing the pair with their origin flags
+**Flag grid country picker** — tap flags to toggle databases; visual and language-light
+**✦ Universal mode** — a Venn-circle toggle restricts results to names shared by every selected country
+**✦ Universal badge + confetti** — a name present in all selected databases gets a gold badge and triggers confetti
+**ⓘ Info panel** — a top-right button opens a quick how-to and links to every official source database
+**Tweaks** — an in-page panel (accessible from the toolbar) to swap palette (bright / pastel / warm), twin link (ampersand / heart / infinity / line), and reveal style (flip / fly / none)
+**11 official databases** — see Data Sources below
 **Fully offline after load** — no API calls, no tracking, no cookies
 
+---
 
 ## Data Sources
+
 All name lists are drawn from official government statistics (2023 editions unless noted):
 
 | Country | Source | Dataset |
@@ -39,92 +57,150 @@ All name lists are drawn from official government statistics (2023 editions unle
 
 Name lists include male, female, and gender-neutral categories for each country. Accent-insensitive matching is used throughout — so "Lucia" correctly matches "Lucía", enabling true cross-country comparison.
 
+---
+
 ## Tech Stack
-This project is intentionally zero-dependency.
 
-Pure HTML, CSS, and vanilla JavaScript — no React, no Vue, no build step
-Single file — the entire app lives in index.html
-No npm, no bundler, no node_modules
-One external resource — Google Fonts (Cormorant Garamond + DM Mono), loaded via <link>. Falls back to system serif if unavailable
+No build step, no npm, no node_modules.
 
+- **React 18** + **Babel standalone** — loaded from CDN; JSX transpiled in-browser
+- **Google Fonts** — Fredoka + DM Mono, loaded via `<link>`
+- **No backend** — everything runs client-side; data is embedded in `names-data.js`
+
+The name-matching logic (normalisation, pool-building, universal filter) is pure vanilla JS, unchanged from v1.
+
+---
+
+## Project Structure
+
+```
+TwinNames/
+├── index.html        # Shell: theme CSS, font imports, script load order
+├── names-data.js     # NAME_DB + matching helpers (norm, buildPool, pickEntry, pickRandom)
+├── app.jsx           # React UI: config, results, cards, share card, info sheet, shortlist
+├── tweaks-panel.jsx  # Reusable Tweaks panel component (palette / connector / reveal)
+├── CNAME             # GitHub Pages custom domain
+└── README.md         # This file
+```
+
+---
 
 ## Getting Started
+
 **Option 1 — Just open it**
-bashgit clone https://github.com/teowaits/twinnames.git
-cd twin-names
+```bash
+git clone https://github.com/teowaits/TwinNames.git
+cd TwinNames
 open index.html   # macOS
 # or double-click index.html in your file explorer
-No server needed. It runs directly from the filesystem.
+```
+No server needed. Because Babel loads app.jsx as a relative file, most browsers will run it directly from the filesystem. If yours blocks local file imports, use Option 2.
+
 **Option 2 — Serve locally**
-bash# Python
+```bash
+# Python
 python3 -m http.server 8080
 
 # Node
 npx serve .
+```
 Then open http://localhost:8080.
 
+---
+
 ## Deployment
-Because it's a single HTML file, deployment is as simple as it gets.
-Netlify / Vercel / Cloudflare Pages
-Just connect the repo — the root index.html is picked up automatically.
-GitHub Pages
-Go to Settings → Pages, set the source to the main branch and / (root). Your app will be live at https://yourusername.github.io/twin-names/.
-Traditional hosting (FTP / cPanel)
-Upload index.html to your domain's public_html (or www) root. Done.
 
-## Project Structure
-twin-names/
-└── index.html      # The entire application
-└── README.md       # This file
-└── CNAME           # GitHub Pages custom domain
+Netlify / Vercel / Cloudflare Pages — connect the repo; the root `index.html` is picked up automatically.
 
-## How It Works
-**Name matching**
-When you select countries and a character length, the app builds a pool of candidates by scanning each country's name list and normalising accented characters (via Unicode NFD decomposition) before comparing. This means:
+GitHub Pages — Settings → Pages → source: main branch, / (root). Live at `https://yourusername.github.io/TwinNames/`.
 
+Traditional hosting — upload all four files (`index.html`, `names-data.js`, `app.jsx`, `tweaks-panel.jsx`) to your public root. Done.
+
+---
+
+## How the matching works
+
+**Name pool**
+When you select countries and a length, the app scans each country's list in `names-data.js`, normalises accented characters via Unicode NFD decomposition, and groups entries by their normalised form:
+
+```
 Lucía (Spain) = Lucia (Italy/Sweden) ✓
-Léo (France) = Leo (UK/USA) ✓
+Léo (France)  = Leo (UK/USA)         ✓
+```
 
-Each entry in the pool tracks which countries it was found in, enabling both the flag display and the Universal filter.
-Universal mode
-With Universal mode ON, the pool is filtered to entries whose country list length equals the number of selected countries — i.e. only names present in every chosen database make it through.
-Skip & replace
-Excluded names are stored in a per-child Set. When you skip a name, it's added to that set and the next non-excluded entry in the shuffled pool is shown. Pools are re-shuffled on "New set" but skipped names carry over within a session.
+Each pool entry tracks which countries it was found in — powering both the flag display and the Universal filter.
+
+**Universal mode**
+With the ✦ Venn toggle ON, the pool is filtered to entries whose country count equals the number of selected databases — i.e. only names present in *every* chosen source pass through.
+
+**Lock & reroll**
+Locking a card removes it from the reroll cycle. Rerolling picks a random entry from the pool different from the current name — pools stay fresh and names can recur across rerolls within a session.
+
+**Shortlist**
+Saving a pairing stores it in React state for the session. Tapping a saved chip re-opens its share card.
+
+---
 
 ## Customisation
-Want to add a country or extend a name list? All data lives in the NAME_DB object near the top of index.html:
-jsconst NAME_DB = {
+
+Want to add a country or extend a name list? All data lives in `names-data.js`:
+
+```js
+const NAME_DB = {
   italy: {
-    label: "🇮🇹 Italy (ISTAT 2023)",
-    flag:  "🇮🇹",
+    label:   "🇮🇹 Italy (ISTAT 2023)",
+    flag:    "🇮🇹",
+    name:    "Italy",
     male:    ["Leonardo", "Matteo", ...],
     female:  ["Sofia", "Aurora", ...],
     neutral: ["Andrea", "Luca", ...]
   },
   // add your country here...
 };
-Each entry needs a label, flag, and three arrays: male, female, neutral.
+```
+
+Each entry needs `label`, `flag`, `name`, and three arrays: `male`, `female`, `neutral`. Also add a corresponding entry to the `SOURCES` object in `app.jsx` with a `src` acronym and official `href`.
+
+---
 
 ## Contributing
+
 Pull requests are welcome. Ideas for improvement:
 
 - Add more countries (Portugal 🇵🇹, Japan 🇯🇵, India 🇮🇳, Norway 🇳🇴…)
-- Expand neutral/non-binary name lists
+- Expand neutral / non-binary name lists
 - Add a "meaning" tooltip powered by a public name API
-- Export a shortlist to PDF or clipboard
+- Export the shortlist to PDF or clipboard
+- PWA / offline manifest so the app installs on mobile
 
-Please keep the zero-dependency philosophy intact — no build tools, no frameworks.
+---
 
 ## Changelog
 
-### May 2025
-- **Added Netherlands 🇳🇱** — 60 male, 60 female, 25 neutral names from the SVB (Sociale Verzekeringsbank), 2025 rankings
-- **Added Ireland 🇮🇪** — 55 male, 55 female, 18 neutral names from the CSO (Central Statistics Office), including Irish Gaelic names: Oisín, Tadhg, Fiadh, Caoimhe, Saoirse, Sadhbh, and more
-- **Added Brazil 🇧🇷** — 55 male, 55 female, 10 neutral names from the IBGE (Instituto Brasileiro de Geografia e Estatística), with correct Brazilian Portuguese accents; footer links to the interactive [Nomes no Brasil](https://censo2022.ibge.gov.br/nomes) Census 2022 app
-- **Fixed broken source links** — ISTAT, INE, INSEE, and SCB had all reorganised their URLs; links updated to current pages
-- **Corrected Germany source** — was incorrectly attributed to Destatis (which does not publish name rankings); corrected to GfdS (Gesellschaft für Deutsche Sprache), the actual official source
+### June 2025 — Two-of-a-Kind redesign 
+- **New UI** — complete frontend redesign; bright candy palette, Fredoka + DM Mono typography
+- **Card-flip reveal** — names flip in with a staggered animation on discover
+- **Ampersand connector** — a drawn & links each pair (tweakable to ♥, ∞, or a plain line)
+- **Lock & reroll** — 🔒 pin a name, 🎲 reroll the rest
+- **Shortlist replaces skip log** — ♥ save pairings you love instead of tracking what you passed on
+- **Share card** — screenshot-ready pairing card with origin flags
+- **Flag grid country picker** — visual, language-light; replaces text buttons
+- **ⓘ Info panel** — how-to steps + all source links, accessible without cluttering the main UI
+- **Tweaks panel** — in-page controls for palette, twin link, and reveal style
+- **Confetti** — fires on a ✦ Universal match
+- **Stack** — migrated from vanilla JS to React 18 + Babel; name data and matching logic untouched
+
+### May 2025 v1.0
+- **Added Netherlands 🇳🇱** — 60 male, 60 female, 25 neutral names from SVB (2025 rankings)
+- **Added Ireland 🇮🇪** — 55 male, 55 female, 18 neutral names from CSO, including Irish Gaelic names
+- **Added Brazil 🇧🇷** — 55 male, 55 female, 10 neutral names from IBGE Census 2022
+- **Fixed broken source links** — ISTAT, INE, INSEE, SCB URLs updated
+- **Corrected Germany source** — attributed to GfdS (not Destatis)
+
+---
 
 ## License
+
 **MIT** — do whatever you like with it.
 
-Built with vanilla JS and official government data. No tracking, no ads, no cookies.
+No tracking, no ads, no cookies.

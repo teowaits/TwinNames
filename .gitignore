@@ -1,16 +1,2 @@
-# Claude Code internal files
+# Local AI session files
 CLAUDE.md
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Editor
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Claude Code session data
-.claude/
